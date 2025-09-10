@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Supporter — Ergodika</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+<script defer src="/assets/js/app.js"></script>
+</head>
+<body>
+<header class="header"><nav class="nav">
+  <div class="logo">Ergodika</div>
+  <a class="btn alt" href="/">Home</a>
+</nav></header>
+<main>
+  <section class="hero">
+    <h1>Diventa supporter</h1>
+    <p class="lead">Sblocca contenuti e lezioni. Le donazioni restano sempre attive.</p>
+  </section>
+  <section class="grid">
+    <div class="card">
+      <h3>Supporter • 3€/mese</h3>
+      <p>Radio HD + contenuti base</p>
+      <button class="btn" onclick="subscribe('LESSONS-MONTHLY')">Abbonati</button>
+    </div>
+    <div class="card">
+      <h3>Patrono • 7€/mese</h3>
+      <p>Contenuti extra + priorità eventi</p>
+      <button class="btn" onclick="subscribe('LESSONS-PLUS')">Abbonati</button>
+    </div>
+  </section>
+</main>
+<script>
+async function subscribe(plan){
+  alert('Checkout abbonamento simulato: collega il Worker /api/checkout/subscription. Piano: ' + plan);
+}
+</script>
+</body></html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="it"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Onboarding Stripe — Artista</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+<script defer src="/assets/js/app.js"></script>
+</head>
+<body>
+<header class="header"><nav class="nav">
+  <div class="logo">Ergodika</div>
+  <a class="btn alt" href="/">Home</a>
+</nav></header>
+<main>
+  <section class="hero">
+    <h1>Collega il tuo Stripe</h1>
+    <p class="lead">In 2 minuti abiliti i payout diretti. 80% a te, 20% a Ergodika.</p>
+    <div class="actions">
+      <button class="btn" onclick="connectStripe()">⚡ Collega ora</button>
+      <a class="btn alt" href="#" onclick="checkStatus();return false;">🔄 Verifica stato</a>
+    </div>
+    <p class="small" id="status">Stato: non collegato (demo)</p>
+  </section>
+</main>
+<script>
+const API = '/workers/mock-api.json'; // sostituisci con il tuo Worker, es. https://ergodika-api.workers.dev
+
+async function connectStripe(){
+  alert('Qui apriremo il link Stripe Express generato dal Worker.');
+}
+async function checkStatus(){
+  document.getElementById('status').textContent = 'Stato: demo (collega il Worker per lo stato reale)';
+}
+</script>
+</body></html>

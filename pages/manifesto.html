@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="it"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Manifesto — Ergodika</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+<script defer src="/assets/js/app.js"></script>
+</head>
+<body>
+<header class="header"><nav class="nav">
+  <div class="logo">Ergodika</div>
+  <a class="btn alt" href="/">Home</a>
+</nav></header>
+<main>
+  <section class="hero">
+    <h1>Manifesto</h1>
+    <p class="lead">Poco più poco, alza lo stipendio dell’artista. L’80% arriva diretto a chi crea.</p>
+    <div class="actions">
+      <button class="btn" onclick="donate(1)">Dona 1€</button>
+      <button class="btn" onclick="donate(3)">Dona 3€</button>
+      <button class="btn" onclick="donate(5)">Dona 5€</button>
+    </div>
+    <p class="small">Trasparenza: contatori aggiornati via Worker. Configura Stripe in <span class="token">/config/app.json</span>.</p>
+  </section>
+</main>
+<script>
+async function donate(amount){
+  alert('Checkout Stripe simulato: collega il Worker per i pagamenti reali. Importo: ' + amount + '€');
+}
+</script>
+</body></html>

@@ -1,352 +1,46 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ergodika — Roma suona il mondo</title>
-  <meta name="description" content="Ergodika: studio di produzione musicale ed etichetta elettronica a Roma. Artisti, eventi, sessioni e label." />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Ergodika — PWA</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#7A4FFF">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Titoli: Space Grotesk • Testi: Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <style>
-    /* ===============================
-       ERGODIKA — DESIGN SYSTEM
-       =============================== */
-    :root {
-      /* Neutri accessibili */
-      --black: #121212;
-      --white: #FFFFFF;
-      --gray-200: #F3F4F6;
-      --gray-700: #374151;
-
-      /* Warm Pulse (default) */
-      --violet: #5C3AFF;
-      --orange: #FF6B3D;
-      --magenta: #FF2F7D;
-      --accent: #00BFA6; /* blu-acquatico di accento */
-
-      /* Cool Wave (alternativa) */
-      --violet-cool: #5C3AFF;
-      --blue: #0060FF;
-      --green: #00FFB0;
-
-      /* Tipografia & dimensioni fluide */
-      --font-body: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      --font-display: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      --radius: 18px;
-      --shadow: 0 10px 30px rgba(0,0,0,.15);
-      --container: min(1120px, 94vw);
-    }
-
-    /* Tema Warm (default) */
-    .theme-warm {
-      --bg-grad: radial-gradient(120% 120% at 20% 10%, rgba(255,47,125,.28) 0%, rgba(92,58,255,.28) 55%, rgba(255,107,61,.28) 100%), linear-gradient(180deg, #1b1440 0%, #0f0f16 100%);
-      --cta: var(--orange);
-      --cta-contrast: var(--white);
-      --link: var(--magenta);
-      --chip: color-mix(in srgb, var(--violet) 60%, #000 40%);
-    }
-
-    /* Tema Cool: applica class="theme-cool" al body per cambiare mood */
-    .theme-cool {
-      --bg-grad: radial-gradient(120% 120% at 20% 10%, rgba(0,255,176,.18) 0%, rgba(0,96,255,.22) 55%, rgba(92,58,255,.26) 100%), linear-gradient(180deg, #0d1120 0%, #0b0d14 100%);
-      --cta: var(--blue);
-      --cta-contrast: var(--white);
-      --link: var(--green);
-      --chip: color-mix(in srgb, var(--blue) 55%, #000 45%);
-    }
-
-    /* Reset & base */
-    *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: var(--font-body);
-      color: var(--white);
-      background: var(--bg-grad) fixed;
-      line-height: 1.55;
-    }
-    a { color: var(--link); text-decoration: none; }
-    a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-    img { max-width: 100%; display: block; border-radius: calc(var(--radius) - 6px); }
-
-    /* Layout */
-    .container { width: var(--container); margin-inline: auto; }
-    .section { padding: clamp(40px, 6vw, 96px) 0; }
-    .title-xl {
-      font-family: var(--font-display);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      font-size: clamp(32px, 6vw, 64px);
-      line-height: 1.05;
-      margin: 0 0 12px;
-    }
-    .subtitle { color: #e6e6f0; margin: 0 0 28px; font-size: clamp(16px, 2.6vw, 20px); }
-
-    /* Header */
-    .skip { position:absolute; left:-9999px; top:auto; }
-    .skip:focus { left: 16px; top: 16px; background: var(--white); color: var(--black); padding: 10px 14px; border-radius: 10px; z-index: 1000; }
-    header {
-      position: sticky; top: 0; z-index: 100;
-      backdrop-filter: saturate(160%) blur(10px);
-      background: color-mix(in srgb, #0b0d14 60%, transparent);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .nav {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 16px; padding: 14px 0;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .5px; }
-    .brand__logo { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; background: linear-gradient(135deg, var(--violet), var(--magenta)); box-shadow: var(--shadow); }
-    .brand__text { font-family: var(--font-display); }
-
-    .menu { display: flex; gap: 16px; flex-wrap: wrap; }
-    .menu a { color: #eaeafa; padding: 8px 12px; border-radius: 10px; }
-    .menu a:hover { background: rgba(255,255,255,.08); }
-
-    .cta {
-      background: var(--cta); color: var(--cta-contrast);
-      padding: 10px 16px; border-radius: 999px; border: none; font-weight: 600; cursor: pointer;
-      box-shadow: 0 6px 20px color-mix(in srgb, var(--cta) 45%, transparent);
-    }
-    .cta:hover { transform: translateY(-1px); }
-
-    /* Hero */
-    .hero { position: relative; overflow: clip; }
-    .hero__card {
-      background: linear-gradient(135deg, color-mix(in srgb, var(--violet) 40%, transparent), color-mix(in srgb, var(--magenta) 40%, transparent)) border-box;
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: clamp(24px, 4vw, 48px);
-    }
-    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn-outline {
-      background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,.22);
-      padding: 10px 16px; border-radius: 999px; font-weight: 600;
-    }
-    .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
-    .chip {
-      background: var(--chip); border: 1px solid rgba(255,255,255,.1);
-      padding: 6px 10px; border-radius: 999px; font-size: 12px; letter-spacing: .2px;
-    }
-
-    /* Griglie */
-    .grid { display: grid; gap: 20px; }
-    .grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .grid-4 { grid-template-columns: repeat(4, 1fr); }
-
-    /* Card */
-    .card {
-      background: color-mix(in srgb, #15162a 70%, transparent);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      display: grid; gap: 12px;
-    }
-    .card h3 { margin: 6px 0 0; font-family: var(--font-display); font-size: 20px; }
-    .meta { color: #cbd5e1; font-size: 14px; }
-
-    /* Event banner */
-    .event-banner {
-      background: linear-gradient(135deg, var(--violet) 0%, var(--magenta) 60%, var(--orange) 100%);
-      border-radius: var(--radius);
-      padding: 18px;
-      display: grid; gap: 6px;
-      color: var(--white);
-    }
-    .event-banner .date { font-weight: 700; letter-spacing: .04em; }
-    .event-banner .buy { justify-self: start; margin-top: 4px; }
-
-    /* Studio section */
-    .studio {
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: var(--radius);
-      padding: clamp(20px, 3.2vw, 36px);
-    }
-
-    /* Footer */
-    footer { border-top: 1px solid rgba(255,255,255,.08); padding: 28px 0 60px; color:#d4d8e3; }
-    .footer-grid { display: grid; gap: 16px; grid-template-columns: 1.2fr 1fr 1fr; }
-    .foot-links { display: grid; gap: 10px; }
-    .foot-links a { color:#e9eaf6; }
-    .social { display: flex; gap: 10px; flex-wrap: wrap; }
-
-    /* Responsività */
-    @media (max-width: 1100px) {
-      .grid-4 { grid-template-columns: repeat(3, 1fr); }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 860px) {
-      .grid-3 { grid-template-columns: repeat(2, 1fr); }
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
-      .menu { display: none; } /* semplifica su mobile; si può sostituire con hamburger JS in seguito */
-    }
-    @media (max-width: 580px) {
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-      .actions { flex-direction: column; }
-    }
-
-    /* Ridurre animazioni per accessibilità */
-    @media (prefers-reduced-motion: reduce) {
-      * { scroll-behavior: auto; }
-      .cta, .btn-outline { transition: none !important; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <script defer src="/assets/js/app.js"></script>
 </head>
-
-<!-- Cambia theme-warm in theme-cool per il secondo mood -->
-<body class="theme-warm">
-  <a class="skip" href="#main">Salta al contenuto</a>
-
-  <header role="banner">
-    <div class="container nav" aria-label="Navigazione principale">
-      <div class="brand">
-        <div class="brand__logo" aria-hidden="true">◆</div>
-        <span class="brand__text">ERGODIKA</span>
-      </div>
-      <nav class="menu" aria-label="Menu">
-        <a href="#artisti">Artisti</a>
-        <a href="#eventi">Eventi</a>
-        <a href="#studio">Studio</a>
-        <a href="#label">Label</a>
-      </nav>
-      <button class="cta">Ascolta ora</button>
+<body>
+<header class="header">
+  <nav class="nav">
+    <div class="logo">Ergodika <span class="badge">PWA</span></div>
+    <div class="actions">
+      <a class="btn alt" href="/pages/manifesto.html">Manifesto</a>
+      <a class="btn alt" href="/pages/radio.html">Radio</a>
+      <a class="btn" href="/pages/members.html">Diventa supporter</a>
     </div>
-  </header>
+  </nav>
+</header>
 
-  <main id="main">
-    <!-- HERO -->
-    <section class="section">
-      <div class="container hero">
-        <div class="hero__card">
-          <h1 class="title-xl">ROMA SUONA. <br/> IL MONDO ASCOLTA.</h1>
-          <p class="subtitle">Studio di produzione ed etichetta elettronica con base a Roma. Sessioni, release e dj set che connettono la città al mondo.</p>
-          <div class="actions">
-            <a class="cta" href="#eventi">Scopri gli eventi</a>
-            <a class="btn-outline" href="#label">Le nostre release</a>
-          </div>
-          <div class="chips" aria-label="tag principali">
-            <span class="chip">Elettronica</span>
-            <span class="chip">Roma</span>
-            <span class="chip">Sessions</span>
-            <span class="chip">Label</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ARTISTI -->
-    <section id="artisti" class="section">
-      <div class="container">
-        <h2 class="title-xl" style="font-size: clamp(28px,4.2vw,40px);">Artisti</h2>
-        <div class="grid grid-4" role="list">
-          <!-- Card artista -->
-          <article class="card" role="listitem">
-            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1400&auto=format&fit=crop" alt="Ritratto artista 1">
-            <h3>Clara</h3>
-            <p class="meta">Producer • Ambient/IDM</p>
-            <a class="btn-outline" href="#" aria-label="Ascolta Clara su Spotify">Spotify</a>
-          </article>
-
-          <article class="card" role="listitem">
-            <img src="https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=1400&auto=format&fit=crop" alt="Ritratto artista 2">
-            <h3>Gallo</h3>
-            <p class="meta">Live set • Techno</p>
-            <a class="btn-outline" href="#" aria-label="Ascolta Gallo su Spotify">Spotify</a>
-          </article>
-
-          <article class="card" role="listitem">
-            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1400&auto=format&fit=crop" alt="Ritratto artista 3">
-            <h3>Maya</h3>
-            <p class="meta">DJ • Leftfield</p>
-            <a class="btn-outline" href="#" aria-label="Ascolta Maya su Spotify">Spotify</a>
-          </article>
-
-          <article class="card" role="listitem">
-            <img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=1400&auto=format&fit=crop" alt="Ritratto artista 4">
-            <h3>Adam</h3>
-            <p class="meta">Composer • Modular</p>
-            <a class="btn-outline" href="#" aria-label="Ascolta Adam su Spotify">Spotify</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- EVENTI -->
-    <section id="eventi" class="section">
-      <div class="container">
-        <div class="grid grid-3">
-          <div class="event-banner">
-            <strong class="date">26 APR • ROMA</strong>
-            <span>Ergodika Sessions — Studio Live</span>
-            <a class="cta buy" href="#">Biglietti</a>
-          </div>
-          <div class="card">
-            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1400&auto=format&fit=crop" alt="Visual evento 1">
-            <h3>Release Night</h3>
-            <p class="meta">Guest: Intl. Artist • 02:00</p>
-          </div>
-          <div class="card">
-            <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1400&auto=format&fit=crop" alt="Visual evento 2">
-            <h3>Talk & Listening</h3>
-            <p class="meta">Intervista + playback session</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- STUDIO & LABEL -->
-    <section id="studio" class="section">
-      <div class="container grid grid-2">
-        <div class="studio">
-          <h2 class="title-xl" style="font-size: clamp(28px,4.2vw,40px);">Studio</h2>
-          <p class="subtitle" style="color:#e8eaf6">Registrazione, mix, mastering e set in diretta. Un polo per la musica elettronica romana aperto al mondo.</p>
-          <div class="grid grid-2">
-            <img src="https://images.unsplash.com/photo-1513863323965-6dfb5363f5d3?q=80&w=1400&auto=format&fit=crop" alt="Sala regia">
-            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1400&auto=format&fit=crop" alt="Strumentazione studio">
-          </div>
-        </div>
-        <div id="label" class="studio">
-          <h2 class="title-xl" style="font-size: clamp(28px,4.2vw,40px);">Label</h2>
-          <p class="subtitle" style="color:#e8eaf6">Pubblicazioni curate, radicate a Roma ma con profilo internazionale. Dalle release digitali al vinile.</p>
-          <div class="grid grid-2">
-            <div class="card"><h3>Nuova Release</h3><p class="meta">ERG-011 • Out now</p></div>
-            <div class="card"><h3>Demo</h3><p class="meta">Invia i tuoi brani → <a href="#">submission</a></p></div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer role="contentinfo">
-    <div class="container footer-grid">
-      <div>
-        <div class="brand">
-          <div class="brand__logo" aria-hidden="true">◆</div>
-          <span class="brand__text">ERGODIKA</span>
-        </div>
-        <p class="meta" style="margin-top:8px">Roma • Studio di produzione & Label elettronica</p>
-      </div>
-      <nav class="foot-links" aria-label="Link rapidi">
-        <a href="#artisti">Artisti</a>
-        <a href="#eventi">Eventi</a>
-        <a href="#studio">Studio</a>
-        <a href="#label">Label</a>
-      </nav>
-      <div>
-        <div class="social">
-          <a href="#">Spotify</a>
-          <a href="#">Instagram</a>
-          <a href="#">YouTube</a>
-          <a href="#">Contatti</a>
-        </div>
-      </div>
+<main>
+  <section class="hero">
+    <h1>Roma suona. Il mondo ascolta.</h1>
+    <p class="lead">Radio H24, micro‑supporto diretto, community e didattica. Payout veloci con Stripe Connect.</p>
+    <div class="actions">
+      <a class="btn" href="/pages/manifesto.html">Sostieni (1€ / 3€ / 5€)</a>
+      <a class="btn alt" href="/pages/artist-onboarding.html">Artista? Collega Stripe</a>
     </div>
-  </footer>
+  </section>
+
+  <section class="section grid">
+    <div class="card"><h3>Supporto diretto</h3><p>Split 80/20 automatico. Nessuna intermediazione dei DSP.</p></div>
+    <div class="card"><h3>Radio H24</h3><p>Player integrato e visualizer. Configurazione in <span class="token">/config/app.json</span>.</p></div>
+    <div class="card"><h3>PWA installabile</h3><p>Funziona su iOS/Android/Desktop. Offline per le pagine base.</p></div>
+  </section>
+</main>
+
+<footer class="footer small">© Ergodika — Roma → Mondo</footer>
 </body>
 </html>

@@ -1,0 +1,9 @@
+{
+  "stripe": {
+    "publicKey": "pk_test_xxx",
+    "workerBase": "https://ergodika-api.workers.dev"
+  },
+  "radio": {
+    "streamUrl": ""
+  }
+}
