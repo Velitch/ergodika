@@ -1,4 +1,15 @@
 // src/index.js
+// Ergodika — Cloudflare Worker (Stripe) con CORS multi-origin + contatori KV
+//
+// NOTE variabili (wrangler.toml):
+// - SITE_URL="https://www.ergodika.it"
+// - ALLOWED_ORIGINS="https://www.ergodika.it,https://ergodika.it"
+// - CONNECT_FEE_PERCENT="20"
+// - STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3="price_xxx"  (opzionale, per tier "3")
+// - STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7="price_xxx"  (opzionale, per tier "7")
+// Secrets (wrangler secret put ...):
+// - STRIPE_SECRET   (sk_test_...)
+// - STRIPE_WEBHOOK_SECRET (whsec_... se/quando validi la firma)
 
 export default {
   async fetch(request, env) {
@@ -7,55 +18,54 @@ export default {
 
     // Preflight CORS
     if (request.method === "OPTIONS") {
-      return cors(new Response(null, { status: 204 }), env);
+      return withCORS(request, new Response(null, { status: 204 }), env);
     }
 
     try {
       // --- Payments / Connect ---
       if (request.method === "GET" && path === "/api/payments/artist-onboarding") {
-        return cors(await artistOnboarding(url, env), env);
+        return withCORS(request, await artistOnboarding(url, env), env);
       }
       if (request.method === "GET" && path === "/api/payments/artist-status") {
-        return cors(await artistStatus(url, env), env);
+        return withCORS(request, await artistStatus(url, env), env);
       }
 
       // --- Checkout (one-time / subscription) ---
       if (request.method === "POST" && path === "/api/checkout/one-time") {
         const body = await safeJson(request);
-        return cors(await checkoutOneTime(body, env), env);
+        return withCORS(request, await checkoutOneTime(body, env), env);
       }
       if (request.method === "POST" && path === "/api/checkout/subscription") {
         const body = await safeJson(request);
-        return cors(await checkoutSubscription(body, env), env);
+        return withCORS(request, await checkoutSubscription(body, env), env);
       }
 
       // --- Convenience: test checkout via GET (redirect diretto a Stripe) ---
       if (request.method === "GET" && path === "/api/checkout/test") {
-        return cors(await checkoutTest(url, env), env);
+        return withCORS(request, await checkoutTest(url, env), env);
       }
 
       // --- Stripe webhook (contatori trasparenza) ---
       if (request.method === "POST" && path === "/api/stripe/webhook") {
+        // 🔐 In prod: verifica firma con STRIPE_WEBHOOK_SECRET
         const raw = await request.text();
-        // NOTE: per semplicità non verifichiamo la firma qui.
-        // In prod, verifica 'stripe-signature' con STRIPE_WEBHOOK_SECRET (HMAC SHA256).
         let event;
         try { event = JSON.parse(raw); } catch (e) { event = null; }
         await handleWebhook(event, env);
-        return cors(json({ ok: true }), env);
+        return withCORS(request, json({ ok: true }), env);
       }
 
       // --- Debug contatori ---
       if (request.method === "GET" && path === "/api/debug-counters") {
-        return cors(await debugCounters(env), env);
+        return withCORS(request, await debugCounters(env), env);
       }
 
-      return cors(new Response("Not found", { status: 404 }), env);
+      return withCORS(request, new Response("Not found", { status: 404 }), env);
     } catch (e) {
-      return cors(json({ ok: false, error: e.message }, 500), env);
+      return withCORS(request, json({ ok: false, error: e.message }, 500), env);
     }
   }
-}
+};
 
 /* =========================
  * Helpers base
@@ -68,22 +78,29 @@ function json(data, status = 200) {
   });
 }
 
-function cors(res, env) {
-  const allowed = [
-    "https://www.ergodika.it",
-    "https://ergodika.it",
-  ];
-  const reqOrigin = res.headers.get("Origin") || allowed[0];
-  const origin = allowed.includes(reqOrigin) ? reqOrigin : allowed[0];
-  const headers = new Headers(res.headers);
-  headers.set("Access-Control-Allow-Origin", origin);
-  headers.set("Vary", "Origin");
-  headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  headers.set("Access-Control-Max-Age", "86400");
-  return new Response(res.body, { status: res.status, headers });
+/** CORS multi-origin con preflight e Vary: Origin **/
+function parseAllowed(env) {
+  const fallback = ["https://www.ergodika.it", "https://ergodika.it"];
+  const raw = (env.ALLOWED_ORIGINS || env.SITE_URL || "").trim();
+  if (!raw) return fallback;
+  return raw.split(",").map(s => s.trim()).filter(Boolean);
 }
-
+function pickOrigin(request, env) {
+  const origin = request.headers.get("Origin");
+  const allowed = parseAllowed(env);
+  if (origin && allowed.includes(origin)) return origin;
+  return allowed[0]; // meglio esplicito che "*"
+}
+function withCORS(request, res, env) {
+  const origin = pickOrigin(request, env);
+  const h = new Headers(res.headers);
+  h.set("Access-Control-Allow-Origin", origin);
+  h.set("Vary", "Origin");
+  h.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  h.set("Access-Control-Allow-Headers", "Content-Type,Authorization,Idempotency-Key");
+  h.set("Access-Control-Max-Age", "86400");
+  return new Response(res.body, { status: res.status, headers: h });
+}
 
 async function safeJson(request) {
   try { return await request.json(); } catch { return {}; }
@@ -124,7 +141,7 @@ async function artistOnboarding(url, env) {
   let acct = await env.ERGODIKA.get(kvKey);
 
   if (!acct) {
-    // Creazione account Connect Express con sintassi a parentesi
+    // Crea account Connect Express
     const account = await s(env, "accounts", "POST", {
       type: "express",
       country: "IT",
@@ -136,7 +153,7 @@ async function artistOnboarding(url, env) {
     await env.ERGODIKA.put(kvKey, acct);
   }
 
-  // Link di onboarding (monouso, breve scadenza)
+  // Link di onboarding monouso
   const link = await s(env, "account_links", "POST", {
     account: acct,
     refresh_url: redirect,
@@ -169,6 +186,7 @@ async function artistStatus(url, env) {
  * ========================= */
 
 async function checkoutOneTime(body, env) {
+  // amount: euro o cent? supportiamo entrambi (come prima)
   const eur = typeof body.amount === "number" ? body.amount : parseFloat(body.amount || "1");
   const amountCents = Math.max(100, Math.floor(eur * 100)); // minimo €1
   const artistId = body.artistId || "unknown";
@@ -204,9 +222,16 @@ async function checkoutOneTime(body, env) {
  * ========================= */
 
 async function checkoutSubscription(body, env) {
-  const priceId = body.priceId;
+  // Supporta sia priceId esplicito che tier "3"/"7" (da wrangler vars)
+  const tier = (body.tier || "").trim();
+  const priceId =
+    body.priceId ||
+    (tier === "3" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 :
+     tier === "7" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 :
+     null);
+
   const memo = body.memo || "Ergodika subscription";
-  if (!priceId) return json({ ok: false, error: "priceId required" }, 400);
+  if (!priceId) return json({ ok: false, error: "priceId or tier required" }, 400);
 
   const success = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=ok`;
   const cancel = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=cancel`;
@@ -217,7 +242,8 @@ async function checkoutSubscription(body, env) {
     cancel_url: cancel,
     "line_items[0][price]": priceId,
     "metadata[type]": "subscription",
-    "subscription_data[metadata][plan]": priceId
+    "subscription_data[metadata][plan]": priceId,
+    "metadata[memo]": memo
   });
 
   return json({ ok: true, url: session.url });
@@ -288,7 +314,7 @@ async function debugCounters(env) {
   const keys = ["payments:count", "subs:paid"];
   const out = {};
   for (const k of keys) {
-    out[k] = await env.ERGODIKA.get(k) || "0";
+    out[k] = (await env.ERGODIKA.get(k)) || "0";
   }
   return json(out);
 }
