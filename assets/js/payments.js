@@ -1,4 +1,4 @@
-// /assets/js/payments.js
+// JS puro per bottoni donazione/abbonamento — legge /config/app.json
 window.ErgodikaPayments = (function () {
   let CONFIG = null;
   let WORKER = null;
@@ -32,11 +32,11 @@ window.ErgodikaPayments = (function () {
     }
   }
 
-  async function subscribe({ tier, priceId, memo = "Ergodika subscription" } = {}, btn) {
+  async function subscribe({ tier, priceId, memo = "Ergodika subscription", quantity = 1 } = {}, btn) {
     await loadConfig();
     try {
       if (btn) { btn.disabled = true; btn.dataset._label = btn.textContent; btn.textContent = "Collegamento…"; }
-      const payload = priceId ? { priceId, memo } : { tier, memo };
+      const payload = priceId ? { priceId, memo, quantity } : { tier, memo, quantity };
       const r = await fetch(`${WORKER}/api/checkout/subscription`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -56,16 +56,16 @@ window.ErgodikaPayments = (function () {
   function bindDonationButtons(selector = "[data-donate]") {
     document.querySelectorAll(selector).forEach((btn) => {
       const amount = parseInt(btn.dataset.amount, 10);
-      const artist = btn.dataset.artist; // es. "test-artist-001"
+      const artist = btn.dataset.artist;
       btn.addEventListener("click", (e) => donate(amount, artist, undefined, e.currentTarget));
     });
   }
-
   function bindSubscriptionButtons(selector = "[data-sub-tier],[data-sub-price]") {
     document.querySelectorAll(selector).forEach((btn) => {
       const tier = btn.dataset.subTier;       // "3" o "7"
-      const priceId = btn.dataset.subPrice;   // alternativa: price_...
-      btn.addEventListener("click", (e) => subscribe({ tier, priceId }, e.currentTarget));
+      const priceId = btn.dataset.subPrice;   // "price_..."
+      const qty = parseInt(btn.dataset.subQty || "1", 10);
+      btn.addEventListener("click", (e) => subscribe({ tier, priceId, quantity: qty }, e.currentTarget));
     });
   }
 
