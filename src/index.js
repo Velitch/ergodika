@@ -107,8 +107,12 @@ async function safeJson(request) {
 }
 
 async function s(env, endpoint, method = "POST", form = null) {
+  const key = env.STRIPE_SECRET;
+  if (!key) throw new Error("Missing STRIPE_SECRET");
+  if (!/^sk_/.test(key)) throw new Error("STRIPE_SECRET deve iniziare con 'sk_' (hai messo una 'pk_...').");
+
   const headers = {
-    "Authorization": `Bearer ${env.STRIPE_SECRET}`,
+    "Authorization": `Bearer ${key}`,
     "Content-Type": "application/x-www-form-urlencoded"
   };
   const body = form ? new URLSearchParams(form).toString() : null;
@@ -117,6 +121,7 @@ async function s(env, endpoint, method = "POST", form = null) {
   if (!res.ok) throw new Error(data.error?.message || "Stripe error");
   return data;
 }
+
 
 function fee(amountCents, percent = "20") {
   const p = parseFloat(percent || "20");
@@ -221,33 +226,37 @@ async function checkoutOneTime(body, env) {
  * Checkout (subscription)
  * ========================= */
 
-async function checkoutSubscription(body, env) {
-  // Supporta sia priceId esplicito che tier "3"/"7" (da wrangler vars)
-  const tier = (body.tier || "").trim();
-  const priceId =
-    body.priceId ||
-    (tier === "3" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 :
-     tier === "7" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 :
-     null);
+ async function checkoutSubscription(body, env) {
+   // Supporta sia priceId esplicito che tier "3"/"7"
+   const tier = (body.tier || "").trim();
+   const priceId =
+     body.priceId ||
+     (tier === "3" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 :
+      tier === "7" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 :
+      null);
 
-  const memo = body.memo || "Ergodika subscription";
-  if (!priceId) return json({ ok: false, error: "priceId or tier required" }, 400);
+   const memo = body.memo || "Ergodika subscription";
+   const qty = String(Math.max(1, parseInt(body.quantity || "1", 10))); // default 1
 
-  const success = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=ok`;
-  const cancel = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=cancel`;
+   if (!priceId) return json({ ok: false, error: "priceId or tier required" }, 400);
 
-  const session = await s(env, "checkout/sessions", "POST", {
-    mode: "subscription",
-    success_url: success,
-    cancel_url: cancel,
-    "line_items[0][price]": priceId,
-    "metadata[type]": "subscription",
-    "subscription_data[metadata][plan]": priceId,
-    "metadata[memo]": memo
-  });
+   const success = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=ok`;
+   const cancel  = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=cancel`;
 
-  return json({ ok: true, url: session.url });
-}
+   const session = await s(env, "checkout/sessions", "POST", {
+     mode: "subscription",
+     success_url: success,
+     cancel_url: cancel,
+     "line_items[0][price]": priceId,
+     "line_items[0][quantity]": qty,                 // ✅ NECESSARIO
+     "metadata[type]": "subscription",
+     "subscription_data[metadata][plan]": priceId,
+     "metadata[memo]": memo
+   });
+
+   return json({ ok: true, url: session.url });
+ }
+
 
 /* =========================
  * Test helper (redirect diretto a Stripe)
