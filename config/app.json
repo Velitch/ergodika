@@ -1,6 +1,6 @@
 {
   "stripe": {
-    "publicKey": "pk_test_51S5p3vRrORapViImNvoxYzgGugP7GgXvbjjxSbqsqJLsAQYuljW21Gx89HFOv0YDQFxeMLswiwyf7IG0fWg5cs3m00jQR6W20L",
+    "publicKey": "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks",
     "workerBase": "https://ergodika-api.ergodika.workers.dev"
   },
   "radio": {
