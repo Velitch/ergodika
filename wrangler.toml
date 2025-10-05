@@ -1,0 +1,11 @@
+name = "ergodika-api"
+main = "src/index.js"
+compatibility_date = "2024-09-10"
+
+[vars]
+SITE_URL = "https://www.ergodika.it"
+CONNECT_FEE_PERCENT = "20"
+
+[[kv_namespaces]]
+binding = "ERGODIKA"
+id = "5ea4fe53af054fe3933b52ca81b29566"
