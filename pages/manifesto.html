@@ -1,58 +1,191 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="shortcut icon" href="https://www.ergodika.it/assets/images/favicon-96x96.png" type="image/x-icon">
-  <title>Manifesto — Ergodika</title>
-  <link rel="stylesheet" href="/assets/css/style.css">
-  <script defer src="/assets/js/app.js"></script>
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manifesto – Ergodika</title>
 
+  <!-- 🌈 Palette-->
+  <style>
+    :root {
+      --bg: #fafafa;
+      --text: #141414;
+      --violet: #8B5CF6;
+      --magenta: #EC4899;
+      --orange: #F97316;
+      --cyan: #06B6D4;
+      --radius: 16px;
+    }
+
+    body {
+      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--violet), var(--magenta), var(--orange));
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem 2rem;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+      color: var(--violet);
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    .counters {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      padding: 1.5rem 0;
+      background: linear-gradient(135deg, var(--violet), var(--cyan));
+      color: white;
+      border-radius: var(--radius);
+      margin: 2rem 0;
+    }
+
+    .counter {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    button {
+      border: none;
+      background: linear-gradient(90deg, var(--magenta), var(--orange));
+      color: white;
+      font-size: 1rem;
+      padding: 0.9rem 1.8rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }
+
+    footer {
+      text-align: center;
+      color: #666;
+      padding: 2rem 0;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .counters { flex-direction: column; gap: 1rem; }
+    }
+  </style>
+</head>
 <body>
-  <header class="header">
-    <nav class="nav">
-      <div class="logo">Ergodika</div>
-      <a class="btn alt" href="/">Home</a>
-    </nav>
+
+  <header>
+    <h1>Manifesto Ergodika</h1>
+    <p>La musica come ecosistema: condividere, creare, diffondere.
+      Roma, il mondo e le sue frequenze contemporanee.</p>
   </header>
+
   <main>
-    <section class="hero">
-      <h1>Manifesto</h1>
-      <p class="lead">Poco più poco, alza lo stipendio dell’artista. L’80% arriva diretto a chi crea.</p>
-      <div class="actions">
-        <button class="btn" onclick="donate(1)">Dona 1€</button>
-        <button class="btn" onclick="donate(3)">Dona 3€</button>
-        <button class="btn" onclick="donate(5)">Dona 5€</button>
+    <h2>Crediamo nella trasparenza</h2>
+    <p>
+      Ogni contributo inviato ad <strong>Ergodika</strong> sostiene direttamente gli artisti che producono musica
+      nella nostra comunità.
+      Crediamo in un sistema dove la musica vince sempre, e dove chi crea riceve
+      riconoscimento immediato e proporzionato.
+    </p>
+
+    <div class="counters">
+      <div>
+        <div class="counter" id="counter-donations">0</div>
+        <div>Donazioni completate</div>
       </div>
-      <p class="small">Trasparenza: contatori aggiornati via Worker. Configura Stripe in <span class="token">/config/app.json</span>.</p>
-      <p>Donazioni completate: <span id="counter-donations">0</span></p>
-      <p>Abbonamenti pagati: <span id="counter-subs">0</span></p>
-    </section>
+      <div>
+        <div class="counter" id="counter-subs">0</div>
+        <div>Abbonamenti pagati</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="donate(1)">Dona 1 €</button>
+      <button onclick="donate(5)">Dona 5 €</button>
+      <button onclick="donate(10)">Dona 10 €</button>
+    </div>
+
+    <p style="margin-top:2rem;text-align:center;">
+      Vuoi entrare a far parte dell’ecosistema Ergodika?
+      <a href="https://ergodika.it/pages/artist-onboarding.html" style="color:var(--violet);font-weight:600;">Collega il tuo account artista</a>.
+    </p>
   </main>
 
+  <footer>
+    © <span id="year"></span> Ergodika Studio – Roma
+    <br/>Costruiamo insieme un ecosistema sonoro sostenibile.
+  </footer>
 
+  <!-- 🔗 Script -->
   <script>
-    async function donate(amount) {
-      alert('Checkout Stripe simulato: collega il Worker per i pagamenti reali. Importo: ' + amount + '€');
-    }
+    window.addEventListener("load", () => {
+      document.getElementById("year").textContent = new Date().getFullYear();
+      getCounters();
+      setInterval(getCounters, 20000); // aggiorna ogni 20s
+    });
+
+    const WORKER_BASE = "https://ergodika-api.ergodika.workers.dev";
+
     async function getCounters() {
-      const base = (window.ERG?.config?.stripe?.workerBase) || "";
-      if (!base) return;
       try {
-        const res = await fetch(base + "/api/debug-counters", {
-          cache: "no-store"
-        });
+        const res = await fetch(WORKER_BASE + "/api/debug-counters", { cache: "no-store" });
         const data = await res.json();
         document.getElementById("counter-donations").textContent = data["payments:count"] || 0;
         document.getElementById("counter-subs").textContent = data["subs:paid"] || 0;
       } catch (e) {
-        console.warn("Counters fetch failed", e);
+        console.warn("Errore aggiornamento contatori:", e);
       }
     }
-    window.addEventListener("load", getCounters);
+
+    async function donate(amount) {
+      try {
+        const res = await fetch(WORKER_BASE + "/api/checkout/one-time", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount, artistId: "demo", memo: "Supporto Ergodika" })
+        });
+        const data = await res.json();
+        if (data?.url) window.location.href = data.url;
+        else alert("Errore: " + (data?.error || "imprevisto"));
+      } catch (e) {
+        alert("Errore connessione: " + e.message);
+      }
+    }
   </script>
 </body>
-
 </html>
