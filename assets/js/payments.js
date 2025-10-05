@@ -1,5 +1,4 @@
-<!-- assets/js/payments.js -->
-<script>
+// /assets/js/payments.js
 window.ErgodikaPayments = (function () {
   let CONFIG = null;
   let WORKER = null;
@@ -7,15 +6,15 @@ window.ErgodikaPayments = (function () {
   async function loadConfig() {
     if (CONFIG) return CONFIG;
     const res = await fetch("/config/app.json", { cache: "no-cache" });
+    if (!res.ok) throw new Error("Impossibile caricare /config/app.json");
     CONFIG = await res.json();
     WORKER = (CONFIG?.stripe?.workerBase || "").replace(/\/$/, "");
     if (!WORKER) throw new Error("stripe.workerBase mancante in /config/app.json");
     return CONFIG;
   }
 
-  async function donate(amountInCents, artistId, memo = "Ergodika support") {
+  async function donate(amountInCents, artistId, memo = "Ergodika support", btn) {
     await loadConfig();
-    const btn = event?.currentTarget;
     try {
       if (btn) { btn.disabled = true; btn.dataset._label = btn.textContent; btn.textContent = "Collegamento…"; }
       const r = await fetch(`${WORKER}/api/checkout/one-time`, {
@@ -33,15 +32,15 @@ window.ErgodikaPayments = (function () {
     }
   }
 
-  async function subscribe({ tier, priceId, memo = "Ergodika subscription" } = {}) {
+  async function subscribe({ tier, priceId, memo = "Ergodika subscription" } = {}, btn) {
     await loadConfig();
-    const btn = event?.currentTarget;
     try {
       if (btn) { btn.disabled = true; btn.dataset._label = btn.textContent; btn.textContent = "Collegamento…"; }
+      const payload = priceId ? { priceId, memo } : { tier, memo };
       const r = await fetch(`${WORKER}/api/checkout/subscription`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(priceId ? { priceId, memo } : { tier, memo })
+        body: JSON.stringify(payload)
       });
       const { url, error } = await r.json();
       if (error || !url) throw new Error(error || "Errore sconosciuto");
@@ -53,19 +52,20 @@ window.ErgodikaPayments = (function () {
     }
   }
 
-  // Autowire con data-attributes:
+  // Autowire con data-attributes
   function bindDonationButtons(selector = "[data-donate]") {
     document.querySelectorAll(selector).forEach((btn) => {
       const amount = parseInt(btn.dataset.amount, 10);
       const artist = btn.dataset.artist; // es. "test-artist-001"
-      btn.addEventListener("click", () => donate(amount, artist));
+      btn.addEventListener("click", (e) => donate(amount, artist, undefined, e.currentTarget));
     });
   }
+
   function bindSubscriptionButtons(selector = "[data-sub-tier],[data-sub-price]") {
     document.querySelectorAll(selector).forEach((btn) => {
       const tier = btn.dataset.subTier;       // "3" o "7"
       const priceId = btn.dataset.subPrice;   // alternativa: price_...
-      btn.addEventListener("click", () => subscribe({ tier, priceId }));
+      btn.addEventListener("click", (e) => subscribe({ tier, priceId }, e.currentTarget));
     });
   }
 
@@ -77,5 +77,5 @@ window.ErgodikaPayments = (function () {
 
   return { init, donate, subscribe, bindDonationButtons, bindSubscriptionButtons };
 })();
+
 document.addEventListener("DOMContentLoaded", () => window.ErgodikaPayments.init());
-</script>
