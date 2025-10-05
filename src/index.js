@@ -70,8 +70,8 @@ function json(data, status = 200) {
 
 function cors(res, env) {
   const allowed = [
-    "https://ergodika.it",
     "https://www.ergodika.it",
+    "https://ergodika.it",
   ];
   const reqOrigin = res.headers.get("Origin") || allowed[0];
   const origin = allowed.includes(reqOrigin) ? reqOrigin : allowed[0];
