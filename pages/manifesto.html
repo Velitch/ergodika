@@ -6,6 +6,28 @@
 <link rel="stylesheet" href="/assets/css/style.css">
 <script defer src="/assets/js/app.js"></script>
 </head>
+
+<script>
+async function getCounters() {
+  const base = (window.ERG?.config?.stripe?.workerBase) || "";
+  if (!base) return;
+  try {
+    const res = await fetch(base + "/api/debug-counters", { cache: "no-store" });
+    const data = await res.json();
+    document.getElementById("counter-donations").textContent = data["payments:count"] || 0;
+    document.getElementById("counter-subs").textContent = data["subs:paid"] || 0;
+  } catch (e) {
+    console.warn("Counters fetch failed", e);
+  }
+}
+window.addEventListener("load", getCounters);
+</script>
+
+<p>Donazioni completate: <span id="counter-donations">0</span></p>
+<p>Abbonamenti pagati: <span id="counter-subs">0</span></p>
+
+
+
 <body>
 <header class="header"><nav class="nav">
   <div class="logo">Ergodika</div>
