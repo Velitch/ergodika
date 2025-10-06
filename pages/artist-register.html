@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="it">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registra un artista — Ergodika</title>
+<link rel="stylesheet" href="/assets/css/brand.css">
+<link rel="stylesheet" href="/assets/css/artists.css">
+<body>
+  <main class="wrap">
+    <div class="hero">
+      <h1>Registra un artista</h1>
+      <p class="page-sub">Crea la pagina pubblica di un artista e collegala a Stripe per ricevere le donazioni.</p>
+    </div>
+
+    <section class="section">
+      <form id="artist-form" class="grid" style="gap:12px">
+        <div>
+          <label>Nome artista</label><br>
+          <input name="name" required placeholder="es. Marta L.">
+        </div>
+        <div>
+          <label>Slug / ID</label><br>
+          <input name="artistId" placeholder="minuscolo, es. marta-l">
+          <div class="hint">Se lasci vuoto, lo generiamo dal nome.</div>
+        </div>
+        <div>
+          <label>Email contatto</label><br>
+          <input name="email" type="email" required placeholder="nome@esempio.it">
+        </div>
+        <div>
+          <label>Avatar URL</label><br>
+          <input name="avatarUrl" placeholder="https://...">
+        </div>
+        <div>
+          <label>Banner URL</label><br>
+          <input name="bannerUrl" placeholder="https://...">
+        </div>
+        <div style="grid-column:1/-1">
+          <label>Bio</label><br>
+          <textarea name="bio" rows="4" placeholder="Breve biografia"></textarea>
+        </div>
+        <div>
+          <label>Website</label><br>
+          <input name="website" placeholder="https://...">
+        </div>
+        <div>
+          <label>Spotify</label><br>
+          <input name="spotify" placeholder="https://open.spotify.com/artist/...">
+        </div>
+        <div>
+          <label>YouTube</label><br>
+          <input name="youtube" placeholder="https://youtube.com/...">
+        </div>
+        <div>
+          <label>Instagram</label><br>
+          <input name="instagram" placeholder="https://instagram.com/...">
+        </div>
+
+        <div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;margin-top:8px">
+          <button class="btn" type="submit">Crea artista</button>
+          <span class="hint">Dopo la creazione, potrai collegare Stripe.</span>
+        </div>
+      </form>
+    </section>
+
+    <section id="result" class="section" style="display:none">
+      <h2>Fatto ✅</h2>
+      <p class="hint">Pagina pubblica: <a id="artist-link" href="#">apri</a></p>
+      <p class="hint">Token (conservalo per aggiornare i dati): <code id="artist-token" class="token"></code></p>
+      <button id="connect-stripe" class="btn alt">Collega Stripe adesso</button>
+    </section>
+  </main>
+
+  <script src="/assets/js/artist-register.js"></script>
+</body>
+</html>

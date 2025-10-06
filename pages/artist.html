@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="it">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Artista — Ergodika</title>
+<link rel="stylesheet" href="/assets/css/brand.css">
+<link rel="stylesheet" href="/assets/css/artists.css">
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <img id="banner" class="banner" alt="">
+      <div class="avatar-wrap">
+        <img id="avatar" class="avatar" alt="">
+      </div>
+      <h1 id="name">Artista</h1>
+      <p id="bio" class="bio"></p>
+      <div class="links" id="links"></div>
+    </header>
+
+    <section class="support">
+      <h2>Supporta l’artista</h2>
+      <div class="btns">
+        <button class="btn" data-donate data-amount="100">Dona 1 €</button>
+        <button class="btn" data-donate data-amount="300">Dona 3 €</button>
+        <button class="btn" data-donate data-amount="500">Dona 5 €</button>
+      </div>
+      <p class="hint">Le donazioni vanno direttamente all’artista tramite Stripe Connect (20% Ergodika).</p>
+    </section>
+  </main>
+
+  <script src="/assets/js/payments.js"></script>
+  <script src="/assets/js/artist.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+*{box-sizing:border-box}
+.wrap{max-width:var(--brand-container);margin:32px auto;padding:0 18px}
+h1{font-family:var(--brand-font-display);font-weight:800;letter-spacing:-.02em;
+  font-size:clamp(24px,4vw,32px);margin:0 0 16px}
+.hint{color:var(--brand-muted);font-size:14px}
+
+.hero{
+  position:relative;border:1px solid var(--brand-border);border-radius:var(--brand-radius);
+  overflow:hidden;background:var(--brand-surface);margin-bottom:16px;padding-bottom:16px
+}
+.banner{width:100%;height:min(40vw,240px);object-fit:cover;background:var(--brand-soft)}
+.avatar-wrap{position:relative;margin-top:-48px;padding:0 16px}
+.avatar{width:96px;height:96px;border-radius:50%;border:3px solid var(--brand-surface);object-fit:cover;background:var(--brand-surface)}
+.hero h1{margin:8px 16px 4px;font-size:clamp(20px,3vw,26px);font-family:var(--brand-font-display)}
+.bio{margin:0 16px 8px;color:var(--brand-muted);line-height:1.6}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin:0 16px}
+.links a{text-decoration:underline}
+
+.support{border:1px solid var(--brand-border);border-radius:var(--brand-radius);padding:16px;background:transparent}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{display:flex;gap:10px;align-items:center;background:var(--brand-surface);border:1px solid var(--brand-border);
+  border-radius:var(--brand-radius);padding:10px;color:inherit}
+.card img{width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--brand-surface)}
+.card .name{font-weight:700}
+.card .id{font-size:12px;color:var(--brand-muted)}
