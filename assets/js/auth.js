@@ -1,4 +1,3 @@
-<!-- /assets/js/auth.js -->
 <script>
 (async function(){
   async function getWorkerBase() {
