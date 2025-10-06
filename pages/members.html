@@ -1,37 +1,79 @@
 <!doctype html>
-<html lang="it"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<link rel="shortcut icon" href="https://www.ergodika.it/assets/images/favicon-96x96.png" type="image/x-icon">
-<title>Supporter — Ergodika</title>
-<link rel="stylesheet" href="/assets/css/style.css">
-<script defer src="/assets/js/app.js"></script>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ergodika — Members</title>
+  <link rel="stylesheet" href="/assets/css/members.css" />
 </head>
 <body>
-<header class="header"><nav class="nav">
-  <div class="logo">Ergodika</div>
-  <a class="btn alt" href="/">Home</a>
-</nav></header>
-<main>
-  <section class="hero">
-    <h1>Diventa supporter</h1>
-    <p class="lead">Sblocca contenuti e lezioni. Le donazioni restano sempre attive.</p>
-  </section>
-  <section class="grid">
-    <div class="card">
-      <h3>Supporter • 3€/mese</h3>
-      <p>Radio HD + contenuti base</p>
-      <button class="btn" onclick="subscribe('LESSONS-MONTHLY')">Abbonati</button>
+  <main class="container">
+    <h1 class="page-title">Members</h1>
+    <p class="page-sub">Sostieni Ergodika e accedi ai contenuti extra. Puoi gestire il tuo abbonamento in autonomia dal Billing Portal.</p>
+
+    <!-- Stato ritorno Stripe -->
+    <div id="status" class="notice" aria-live="polite"></div>
+
+    <!-- Sezione piani -->
+    <section class="section" aria-labelledby="plans-title">
+      <h2 id="plans-title">Scegli il piano</h2>
+      <div class="grid cols-2" role="list">
+        <div class="card" role="listitem">
+          <h3>Mensile</h3>
+          <p class="page-sub">3 € / mese</p>
+          <button class="btn" data-sub-tier="3" data-sub-qty="1" aria-label="Abbonati 3 euro al mese">Abbonati 3 €/mese</button>
+        </div>
+        <div class="card" role="listitem">
+          <h3>Supporter</h3>
+          <p class="page-sub">7 € / mese</p>
+          <button class="btn" data-sub-tier="7" data-sub-qty="1" aria-label="Abbonati 7 euro al mese">Abbonati 7 €/mese</button>
+        </div>
+      </div>
+      <p class="hint">Il checkout si apre in una pagina sicura Stripe.</p>
+    </section>
+
+    <!-- Sezione Supporta un artista -->
+    <section class="section" aria-labelledby="donate-title">
+      <h2 id="donate-title">Supporta un artista</h2>
+      <p class="page-sub">Verifica l’ID dell’artista per attivare i bottoni di donazione (80% all’artista, 20% alla piattaforma).</p>
+
+      <div class="row" style="margin-bottom:12px">
+        <label for="artist-id">ID artista</label>
+        <input id="artist-id" type="text" placeholder="es. test-artist-001" />
+        <button id="verify-artist" class="btn ghost">Verifica artista</button>
+      </div>
+      <p id="artist-status" class="hint"></p>
+
+      <div class="row" style="margin-top:12px">
+        <!-- bottoni inizialmente disabilitati -->
+        <button class="btn" data-donate-pending data-amount="100" disabled>Dona 1 €</button>
+        <button class="btn" data-donate-pending data-amount="300" disabled>Dona 3 €</button>
+        <button class="btn" data-donate-pending data-amount="500" disabled>Dona 5 €</button>
+      </div>
+      <p class="hint">Nota: le donazioni richiedono che l’artista sia collegato a Stripe Connect.</p>
+    </section>
+
+    <!-- Sezione Billing Portal -->
+    <section class="section" aria-labelledby="portal-title">
+      <h2 id="portal-title">Gestisci abbonamento</h2>
+      <p class="hint">Inserisci l’email usata al checkout per aprire il Billing Portal (carta, cambio piano, annulla, ricevute).</p>
+      <div class="row" style="margin-top:8px">
+        <label for="email">Email</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="tuo@email.it" />
+        <button id="open-portal" class="btn ghost">Apri Billing Portal</button>
+      </div>
+    </section>
+
+    <!-- Footer piccolo -->
+    <div class="footer">
+      <span class="badge" id="env">ENV</span>
+      <a href="/pages/thank-you.html">Pagina di ringraziamento</a>
     </div>
-    <div class="card">
-      <h3>Patrono • 7€/mese</h3>
-      <p>Contenuti extra + priorità eventi</p>
-      <button class="btn" onclick="subscribe('LESSONS-PLUS')">Abbonati</button>
-    </div>
-  </section>
-</main>
-<script>
-async function subscribe(plan){
-  alert('Checkout abbonamento simulato: collega il Worker /api/checkout/subscription. Piano: ' + plan);
-}
-</script>
-</body></html>
+  </main>
+
+  <!-- Script pagamenti (per i bottoni tier/donate) -->
+  <script src="/assets/js/payments.js"></script>
+  <!-- Script della pagina Members -->
+  <script src="/assets/js/members.js"></script>
+</body>
+</html>

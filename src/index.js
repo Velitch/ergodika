@@ -10,6 +10,12 @@ export default {
       return withCORS(request, new Response(null, { status: 204 }), env);
     }
 
+    // --- Customers (lookup by email, per Billing Portal) ---
+if (request.method === "GET" && path === "/api/customers/find") {
+  return withCORS(request, await customersFind(url, env), env);
+}
+
+
     // Home “di cortesia”
     if (request.method === "GET" && (path === "/" || path === "/api")) {
       return withCORS(request, json({
@@ -347,4 +353,22 @@ async function debugCounters(env) {
     out[k] = (await env.ERGODIKA.get(k)) || "0";
   }
   return json(out);
+}
+
+/* =========================
+ * Customers: lookup by email
+ * ========================= */
+async function customersFind(url, env) {
+  const email = (url.searchParams.get("email") || "").trim();
+  if (!email) return json({ ok: false, error: "email required" }, 400);
+
+  // Semplice filtro: GET /v1/customers?email=...
+  const res = await s(env, `customers?email=${encodeURIComponent(email)}`, "GET");
+  const customer = (res?.data && res.data[0]) || null;
+
+  return json({
+    ok: true,
+    email,
+    customerId: customer?.id || null
+  });
 }
