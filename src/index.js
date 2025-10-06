@@ -18,22 +18,6 @@ export default {
         if (maybeArtist) return cors(maybeArtist, env); // usa 'cors' come per il resto
       }
 
-      // --- Payments / Connect ---
-      // (le tue route esistenti qui sotto)
-      // if (request.method === "GET" && path === "/api/payments/artist-onboarding") { ... }
-
-      // --- Checkout, Webhook, Debug, ecc. ---
-      // ...
-
-      // 404 finale
-      return cors(new Response("Not found", { status: 404 }), env);
-    } catch (e) {
-      return cors(json({ ok: false, error: e.message }, 500), env);
-    }
-  }
-}
-
-
     // --- Customers (lookup by email, per Billing Portal) ---
 if (request.method === "GET" && path === "/api/customers/find") {
   return withCORS(request, await customersFind(url, env), env);
@@ -433,4 +417,12 @@ async function verifyStripeSignature(raw, header, secret) {
   const signedPayload = `${t}.${raw}`;
   const expected = await hmacSHA256Hex(secret, signedPayload);
   return v1.some(s => constantTimeEqual(s, expected));
+}
+
+// 404 finale
+return cors(new Response("Not found", { status: 404 }), env);
+} catch (e) {
+return cors(json({ ok: false, error: e.message }, 500), env);
+}
+}
 }
