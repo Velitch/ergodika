@@ -1,4 +1,3 @@
-<script>
 (async function(){
   async function getWorkerBase() {
     try {
@@ -73,4 +72,3 @@
     });
   }
 })();
-</script>
