@@ -6,7 +6,7 @@
  * - Cleanup cache vecchie + attivazione immediata
  */
 
-const CACHE = 'ergodika-v3';
+const CACHE = 'ergodika-v4';
 
 /** Asset essenziali da avere sempre offline */
 const ASSETS = [
@@ -26,11 +26,16 @@ const ASSETS = [
   '/manifest.json',
   '/assets/images/icon-192.png',
   '/assets/images/icon-512.png',
+  '/assets/images/icon-512-maskable..png',
+
 
   // Nuovi file introdotti (se presenti)
   '/assets/js/payments.js',
   '/assets/js/members.js',
   '/assets/css/members.css'
+  '/assets/css/pwa-install.css',
+  '/assets/js/pwa-install.js',
+  '/manifest.json'
 ];
 
 /** Host/percorsi da NON intercettare */
@@ -115,7 +120,9 @@ self.addEventListener('fetch', (event) => {
 
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE);
-  const cached = await cache.match(request, { ignoreSearch: true });
+  const cached = await cache.match(request, {
+    ignoreSearch: true
+  });
   if (cached) return cached;
   const fresh = await fetch(request);
   if (fresh.ok) cache.put(request, fresh.clone());
@@ -129,7 +136,9 @@ async function networkFirst(request) {
     if (fresh && fresh.ok) cache.put(request, fresh.clone());
     return fresh;
   } catch {
-    const cached = await cache.match(request, { ignoreSearch: true });
+    const cached = await cache.match(request, {
+      ignoreSearch: true
+    });
     if (cached) return cached;
 
     // Fallback di navigazione: prova l’index offline
@@ -144,7 +153,9 @@ async function networkFirst(request) {
 
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE);
-  const cached = await cache.match(request, { ignoreSearch: true });
+  const cached = await cache.match(request, {
+    ignoreSearch: true
+  });
   const fetchPromise = fetch(request).then((fresh) => {
     if (fresh && fresh.ok) cache.put(request, fresh.clone());
     return fresh;
