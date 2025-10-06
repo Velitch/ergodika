@@ -1,4 +1,4 @@
-// Cloudflare Worker — Ergodika API (Stripe) con CORS multi-origin e contatori KV
+// src/index.js
 import { routeArtists } from "./artists.js";
 
 export default {
@@ -15,89 +15,62 @@ export default {
       // --- Artists (register/get/update/list) ---
       {
         const maybeArtist = await routeArtists(request, url, env);
-        if (maybeArtist) return cors(maybeArtist, env); // usa 'cors' come per il resto
+        if (maybeArtist) return cors(maybeArtist, env);
       }
 
-    // --- Customers (lookup by email, per Billing Portal) ---
-if (request.method === "GET" && path === "/api/customers/find") {
-  return withCORS(request, await customersFind(url, env), env);
-}
+      // --- Customers (lookup by email, per Billing Portal) ---
+      if (request.method === "GET" && path === "/api/customers/find") {
+        return cors(await customersFind(url, env), env);
+      }
 
+      // --- Billing Portal (redirect) ---
+      if (request.method === "GET" && path === "/api/billing-portal") {
+        return cors(await billingPortal(url, env), env);
+      }
 
-    // Home “di cortesia”
-    if (request.method === "GET" && (path === "/" || path === "/api")) {
-      return withCORS(request, json({
-        ok: true,
-        name: "ergodika-api",
-        routes: [
-          "GET  /api/payments/artist-onboarding",
-          "GET  /api/payments/artist-status",
-          "POST /api/checkout/one-time",
-          "POST /api/checkout/subscription",
-          "GET  /api/checkout/test",
-          "GET  /api/billing-portal?customer=cus_xxx&return=/pages/members.html",
-          "POST /api/stripe/webhook",
-          "GET  /api/debug-counters"
-        ]
-      }), env);
-    }
-
-    try {
       // --- Payments / Connect ---
       if (request.method === "GET" && path === "/api/payments/artist-onboarding") {
-        return withCORS(request, await artistOnboarding(url, env), env);
+        return cors(await artistOnboarding(url, env), env);
       }
       if (request.method === "GET" && path === "/api/payments/artist-status") {
-        return withCORS(request, await artistStatus(url, env), env);
+        return cors(await artistStatus(url, env), env);
       }
 
       // --- Checkout (one-time / subscription) ---
       if (request.method === "POST" && path === "/api/checkout/one-time") {
         const body = await safeJson(request);
-        return withCORS(request, await checkoutOneTime(body, env), env);
+        return cors(await checkoutOneTime(body, env), env);
       }
       if (request.method === "POST" && path === "/api/checkout/subscription") {
         const body = await safeJson(request);
-        return withCORS(request, await checkoutSubscription(body, env), env);
+        return cors(await checkoutSubscription(body, env), env);
       }
 
-      // --- Checkout test (redirect diretto)
+      // --- Convenience: test checkout via GET (redirect diretto a Stripe) ---
       if (request.method === "GET" && path === "/api/checkout/test") {
-        return withCORS(request, await checkoutTest(url, env), env);
+        return cors(await checkoutTest(url, env), env);
       }
 
-      // --- Billing Portal (gestione abbonamento)
-      if (request.method === "GET" && path === "/api/billing-portal") {
-        return withCORS(request, await billingPortal(url, env), env);
-      }
-
-      // --- Stripe webhook (firma verificata) ---
+      // --- Stripe webhook (contatori trasparenza) ---
       if (request.method === "POST" && path === "/api/stripe/webhook") {
-        const raw = await request.text();                              // payload RAW
-        const sig = request.headers.get("stripe-signature") || "";
-        const secret = env.STRIPE_WEBHOOK_SECRET || "";                // whsec_...
-
-        const ok = await verifyStripeSignature(raw, sig, secret);      // ✅ verifica
-        if (!ok) return withCORS(request, json({ ok:false, error:"invalid signature" }, 400), env);
-
+        const raw = await request.text();
         let event;
         try { event = JSON.parse(raw); } catch { event = null; }
         await handleWebhook(event, env);
-        return withCORS(request, json({ ok: true }), env);
+        return cors(json({ ok: true }), env);
       }
-
 
       // --- Debug contatori ---
       if (request.method === "GET" && path === "/api/debug-counters") {
-        return withCORS(request, await debugCounters(env), env);
+        return cors(await debugCounters(env), env);
       }
 
-      return withCORS(request, new Response("Not found", { status: 404 }), env);
+      return cors(new Response("Not found", { status: 404 }), env);
     } catch (e) {
-      return withCORS(request, json({ ok: false, error: e.message }, 500), env);
+      return cors(json({ ok: false, error: e.message }, 500), env);
     }
   }
-};
+}
 
 /* =========================
  * Helpers base
@@ -110,42 +83,30 @@ function json(data, status = 200) {
   });
 }
 
-/** CORS multi-origin con preflight e Vary: Origin **/
-function parseAllowed(env) {
-  const fallback = ["https://www.ergodika.it", "https://ergodika.it"];
-  const raw = (env.ALLOWED_ORIGINS || env.SITE_URL || "").trim();
-  if (!raw) return fallback;
-  return raw.split(",").map(s => s.trim()).filter(Boolean);
-}
-function pickOrigin(request, env) {
-  const origin = request.headers.get("Origin");
-  const allowed = parseAllowed(env);
-  if (origin && allowed.includes(origin)) return origin;
-  return allowed[0];
-}
-function withCORS(request, res, env) {
-  const origin = pickOrigin(request, env);
-  const h = new Headers(res.headers);
-  h.set("Access-Control-Allow-Origin", origin);
-  h.set("Vary", "Origin");
-  h.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  h.set("Access-Control-Allow-Headers", "Content-Type,Authorization,Idempotency-Key");
-  h.set("Access-Control-Max-Age", "86400");
-  return new Response(res.body, { status: res.status, headers: h });
+function cors(res, env) {
+  const allowed = [
+    "https://www.ergodika.it",
+    "https://ergodika.it",
+  ];
+  // Nota: qui leggiamo dall'header della RESPONSE per restare compatibili con la tua implementazione
+  const reqOrigin = res.headers.get("Origin") || allowed[0];
+  const origin = allowed.includes(reqOrigin) ? reqOrigin : allowed[0];
+  const headers = new Headers(res.headers);
+  headers.set("Access-Control-Allow-Origin", origin);
+  headers.set("Vary", "Origin");
+  headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  headers.set("Access-Control-Max-Age", "86400");
+  return new Response(res.body, { status: res.status, headers });
 }
 
 async function safeJson(request) {
   try { return await request.json(); } catch { return {}; }
 }
 
-/** Chiamate Stripe (form-urlencoded) con guardrail su chiave segreta **/
 async function s(env, endpoint, method = "POST", form = null) {
-  const key = env.STRIPE_SECRET;
-  if (!key) throw new Error("Missing STRIPE_SECRET");
-  if (!/^sk_/.test(key)) throw new Error("STRIPE_SECRET deve iniziare con 'sk_' (non usare 'pk_...').");
-
   const headers = {
-    "Authorization": `Bearer ${key}`,
+    "Authorization": `Bearer ${env.STRIPE_SECRET}`,
     "Content-Type": "application/x-www-form-urlencoded"
   };
   const body = form ? new URLSearchParams(form).toString() : null;
@@ -166,12 +127,38 @@ async function inc(env, key, delta = 1) {
 }
 
 /* =========================
+ * Customers / Billing Portal
+ * ========================= */
+
+async function customersFind(url, env) {
+  const email = (url.searchParams.get("email") || "").trim();
+  if (!email) return json({ ok: false, error: "email required" }, 400);
+  const res = await s(env, `customers?email=${encodeURIComponent(email)}`, "GET");
+  const customer = (res?.data && res.data[0]) || null;
+  return json({ ok: true, email, customerId: customer?.id || null });
+}
+
+async function billingPortal(url, env) {
+  const customer = url.searchParams.get("customer");
+  const ret = url.searchParams.get("return") || "/";
+  if (!customer) return json({ ok: false, error: "customer required" }, 400);
+  const base = env.SITE_URL || "https://example.com";
+  const return_url = ret.startsWith("/") ? `${base}${ret}` : `${base}/${ret}`;
+  const session = await s(env, "billing_portal/sessions", "POST", {
+    customer,
+    return_url
+  });
+  // redirect (Stripe gestisce il portale)
+  return Response.redirect(session.url, 302);
+}
+
+/* =========================
  * Connect / Onboarding
  * ========================= */
 
 async function artistOnboarding(url, env) {
   const artistId = url.searchParams.get("artistId");
-  const redirect = url.searchParams.get("redirect") || (env.SITE_URL || "https://www.ergodika.it");
+  const redirect = url.searchParams.get("redirect") || (env.SITE_URL || "https://example.com");
   if (!artistId) return json({ ok: false, error: "artistId required" }, 400);
 
   const kvKey = `artist:${artistId}:acct`;
@@ -222,15 +209,15 @@ async function artistStatus(url, env) {
 
 async function checkoutOneTime(body, env) {
   const eur = typeof body.amount === "number" ? body.amount : parseFloat(body.amount || "1");
-  const amountCents = Math.max(100, Math.floor(eur * 100)); // minimo €1
+  const amountCents = Math.max(100, Math.floor(eur * 100));
   const artistId = body.artistId || "unknown";
   const memo = body.memo || "Ergodika support";
 
   const acct = await env.ERGODIKA.get(`artist:${artistId}:acct`);
   if (!acct) return json({ ok: false, error: "Artist not onboarded" }, 400);
 
-  const success = `${env.SITE_URL}/pages/manifesto.html?ok=1`;
-  const cancel  = `${env.SITE_URL}/pages/manifesto.html?canceled=1`;
+  const success = `${env.SITE_URL || "https://example.com"}/pages/manifesto.html?ok=1`;
+  const cancel = `${env.SITE_URL || "https://example.com"}/pages/manifesto.html?canceled=1`;
 
   const feeAmt = fee(amountCents, env.CONNECT_FEE_PERCENT || "20");
 
@@ -256,37 +243,28 @@ async function checkoutOneTime(body, env) {
  * ========================= */
 
 async function checkoutSubscription(body, env) {
-  const tier = (body.tier || "").trim();
-  const priceId =
-    body.priceId ||
-    (tier === "3" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 :
-     tier === "7" ? env.STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 :
-     null);
-
+  const priceId = body.priceId || body.tier; // supporto 'tier' già usato dai bottoni
   const memo = body.memo || "Ergodika subscription";
-  const qty = String(Math.max(1, parseInt(body.quantity || "1", 10))); // default 1
+  if (!priceId) return json({ ok: false, error: "priceId required" }, 400);
 
-  if (!priceId) return json({ ok: false, error: "priceId or tier required" }, 400);
-
-  const success = `${env.SITE_URL}/pages/members.html?sub=ok`;
-  const cancel  = `${env.SITE_URL}/pages/members.html?sub=cancel`;
+  const success = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=ok`;
+  const cancel = `${env.SITE_URL || "https://example.com"}/pages/members.html?sub=cancel`;
 
   const session = await s(env, "checkout/sessions", "POST", {
     mode: "subscription",
     success_url: success,
     cancel_url: cancel,
     "line_items[0][price]": priceId,
-    "line_items[0][quantity]": qty,                 // NECESSARIO
+    "line_items[0][quantity]": "1",
     "metadata[type]": "subscription",
-    "subscription_data[metadata][plan]": priceId,
-    "metadata[memo]": memo
+    "subscription_data[metadata][plan]": priceId
   });
 
   return json({ ok: true, url: session.url });
 }
 
 /* =========================
- * Checkout test (redirect)
+ * Test helper (redirect diretto a Stripe)
  * ========================= */
 
 async function checkoutTest(url, env) {
@@ -295,11 +273,12 @@ async function checkoutTest(url, env) {
   const memo = url.searchParams.get("memo") || "Ergodika test";
 
   const amountCents = Math.max(100, Math.floor(amount * 100));
+
   const acct = await env.ERGODIKA.get(`artist:${artistId}:acct`);
   if (!acct) return json({ ok: false, error: "Artist not onboarded" }, 400);
 
-  const success = `${env.SITE_URL}/pages/manifesto.html?ok=1`;
-  const cancel  = `${env.SITE_URL}/pages/manifesto.html?canceled=1`;
+  const success = `${env.SITE_URL || "https://example.com"}/pages/manifesto.html?ok=1`;
+  const cancel = `${env.SITE_URL || "https://example.com"}/pages/manifesto.html?canceled=1`;
 
   const feeAmt = fee(amountCents, env.CONNECT_FEE_PERCENT || "20");
 
@@ -317,22 +296,6 @@ async function checkoutTest(url, env) {
     "metadata[type]": "one_time"
   });
 
-  return Response.redirect(session.url, 302);
-}
-
-/* =========================
- * Billing portal (gestione abbonamenti)
- * ========================= */
-
-async function billingPortal(url, env) {
-  const customer = url.searchParams.get("customer");
-  const ret = url.searchParams.get("return") || "/pages/members.html";
-  if (!customer) return json({ ok:false, error:"customer required" }, 400);
-
-  const session = await s(env, "billing_portal/sessions", "POST", {
-    customer,
-    return_url: `${env.SITE_URL}${ret}`
-  });
   return Response.redirect(session.url, 302);
 }
 
@@ -364,65 +327,7 @@ async function debugCounters(env) {
   const keys = ["payments:count", "subs:paid"];
   const out = {};
   for (const k of keys) {
-    out[k] = (await env.ERGODIKA.get(k)) || "0";
+    out[k] = await env.ERGODIKA.get(k) || "0";
   }
   return json(out);
-}
-
-/* =========================
- * Customers: lookup by email
- * ========================= */
-async function customersFind(url, env) {
-  const email = (url.searchParams.get("email") || "").trim();
-  if (!email) return json({ ok: false, error: "email required" }, 400);
-
-  // Semplice filtro: GET /v1/customers?email=...
-  const res = await s(env, `customers?email=${encodeURIComponent(email)}`, "GET");
-  const customer = (res?.data && res.data[0]) || null;
-
-  return json({
-    ok: true,
-    email,
-    customerId: customer?.id || null
-  });
-}
-
-/* ===== Stripe webhook signature (HMAC-SHA256) ===== */
-function parseStripeSigHeader(h) {
-  // es: "t=173... , v1=abc123, v1=altSig..."
-  const out = { t: "", v1: [] };
-  h.split(",").forEach(part => {
-    const [k, v] = part.split("=");
-    if (k === "t") out.t = v;
-    if (k === "v1") out.v1.push(v);
-  });
-  return out;
-}
-async function hmacSHA256Hex(secret, data) {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(data));
-  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, "0")).join("");
-}
-function constantTimeEqual(a, b) {
-  if (a.length !== b.length) return false;
-  let r = 0;
-  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return r === 0;
-}
-async function verifyStripeSignature(raw, header, secret) {
-  if (!secret || !header) return false;
-  const { t, v1 } = parseStripeSigHeader(header);
-  if (!t || !v1.length) return false;
-  const signedPayload = `${t}.${raw}`;
-  const expected = await hmacSHA256Hex(secret, signedPayload);
-  return v1.some(s => constantTimeEqual(s, expected));
-}
-
-// 404 finale
-return cors(new Response("Not found", { status: 404 }), env);
-} catch (e) {
-return cors(json({ ok: false, error: e.message }, 500), env);
-}
-}
 }
