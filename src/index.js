@@ -1,4 +1,5 @@
 // Cloudflare Worker — Ergodika API (Stripe) con CORS multi-origin e contatori KV
+import { routeArtists } from "./artists.js";
 
 export default {
   async fetch(request, env) {
@@ -7,8 +8,40 @@ export default {
 
     // Preflight CORS
     if (request.method === "OPTIONS") {
-      return withCORS(request, new Response(null, { status: 204 }), env);
+      return cors(request, new Response(null, { status: 204 }), env);
     }
+    export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const path = url.pathname;
+
+    // Preflight CORS
+    if (request.method === "OPTIONS") {
+      return cors(new Response(null, { status: 204 }), env);
+    }
+
+    try {
+      // --- Artists (register/get/update/list) ---
+      {
+        const maybeArtist = await routeArtists(request, url, env);
+        if (maybeArtist) return cors(maybeArtist, env); // usa 'cors' come per il resto
+      }
+
+      // --- Payments / Connect ---
+      // (le tue route esistenti qui sotto)
+      // if (request.method === "GET" && path === "/api/payments/artist-onboarding") { ... }
+
+      // --- Checkout, Webhook, Debug, ecc. ---
+      // ...
+
+      // 404 finale
+      return cors(new Response("Not found", { status: 404 }), env);
+    } catch (e) {
+      return cors(json({ ok: false, error: e.message }, 500), env);
+    }
+  }
+}
+
 
     // --- Customers (lookup by email, per Billing Portal) ---
 if (request.method === "GET" && path === "/api/customers/find") {
