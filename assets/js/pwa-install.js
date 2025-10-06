@@ -100,19 +100,52 @@
 
   window.addEventListener('load', () => {
     bindTriggers();
-    // toast aggiornamento SW (opzionale)
+    // Aggiornamento PWA: register + prompt + SKIP_WAITING + toast
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        const t = document.createElement('div');
-        t.textContent = 'App aggiornata';
-        Object.assign(t.style, {
-          position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'16px',
-          background:'#0b1f2a',color:'#fff',padding:'8px 12px',borderRadius:'999px',zIndex:9999
+      navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
+        .then(reg => {
+          // Controlla subito e periodicamente
+          reg.update();
+          setInterval(() => reg.update(), 60 * 60 * 1000);
+
+          function promptUpdate() {
+            // qui puoi usare un tuo banner/overlay al posto del confirm()
+            const ok = confirm('È disponibile un aggiornamento di Ergodika. Vuoi aggiornare ora?');
+            if (ok && reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          }
+
+          // Se c'è già un worker in "waiting" (nuova versione pronta)
+          if (reg.waiting) promptUpdate();
+
+          // Quando arriva una nuova versione…
+          reg.addEventListener('updatefound', () => {
+            const sw = reg.installing;
+            if (!sw) return;
+            sw.addEventListener('statechange', () => {
+              if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                // nuova versione installata, vecchia ancora in uso → proponi update
+                promptUpdate();
+              }
+            });
+          });
+
+          // Quando la nuova versione prende il controllo
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            // toast "App aggiornata" + reload dolce
+            const t = document.createElement('div');
+            t.textContent = 'App aggiornata';
+            Object.assign(t.style, {
+              position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'16px',
+              background:'#0b1f2a',color:'#fff',padding:'8px 12px',borderRadius:'999px',zIndex:9999
+            });
+            document.body.appendChild(t);
+            setTimeout(() => { t.remove(); location.reload(); }, 800);
+          });
         });
-        document.body.appendChild(t); setTimeout(()=>t.remove(), 2500);
-      });
     }
-  });
+
 
   // Esponi una piccola API globale (se vuoi richiamarla da altri script)
   window.ErgodikaPWA = {

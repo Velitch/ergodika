@@ -6,7 +6,7 @@
  * - Cleanup cache vecchie + attivazione immediata
  */
 
-const CACHE = 'ergodika-v4';
+const CACHE = 'ergodika-v5';
 
 /** Asset essenziali da avere sempre offline */
 const ASSETS = [
@@ -100,9 +100,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3) Cache-first per gli asset elencati in ASSETS
+  // 3) Stale-while-revalidate per gli asset elencati in ASSETS
   if (isAssetRequest(url)) {
-    event.respondWith(cacheFirst(event.request));
+    event.respondWith(staleWhileRevalidate(event.request));
     return;
   }
 
@@ -164,3 +164,10 @@ async function staleWhileRevalidate(request) {
   // Servi subito cache se c’è, altrimenti attendi rete
   return cached || fetchPromise || fetch(request);
 }
+
+// Consenti al client di dire "attivati subito"
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
