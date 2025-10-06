@@ -21,8 +21,19 @@
     </div>
     <p class="small" id="status">Stato: non collegato (demo)</p>
   </section>
+
+  <div style="margin:16px 0">
+  <label for="ao-id" style="display:block;font-weight:600;margin-bottom:6px">ID artista</label>
+  <input id="ao-id" type="text" placeholder="es. test-artist-001" style="padding:8px;border:1px solid #ddd;border-radius:8px;min-width:260px">
+</div>
+<button id="ao-start" style="padding:10px 14px;border-radius:8px;border:1px solid #111;background:#111;color:#fff;cursor:pointer">Collega ora</button>
+<button id="ao-check" style="padding:10px 14px;border-radius:8px;border:1px solid #111;background:#fff;color:#111;cursor:pointer;margin-left:8px">Verifica stato</button>
+<p id="ao-msg" style="color:#666;margin-top:10px"></p>
+
 </main>
+<script src="/assets/js/artist-onboarding.js"></script>
 <script>
+
 const API = '/workers/mock-api.json'; // sostituisci con il tuo Worker, es. https://ergodika-api.workers.dev
 
 async function connectStripe(){

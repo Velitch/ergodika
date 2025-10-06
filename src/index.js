@@ -63,15 +63,21 @@ if (request.method === "GET" && path === "/api/customers/find") {
         return withCORS(request, await billingPortal(url, env), env);
       }
 
-      // --- Stripe webhook (contatori trasparenza) ---
+      // --- Stripe webhook (firma verificata) ---
       if (request.method === "POST" && path === "/api/stripe/webhook") {
-        // In produzione: verifica la firma HMAC con STRIPE_WEBHOOK_SECRET
-        const raw = await request.text();
+        const raw = await request.text();                              // payload RAW
+        const sig = request.headers.get("stripe-signature") || "";
+        const secret = env.STRIPE_WEBHOOK_SECRET || "";                // whsec_...
+
+        const ok = await verifyStripeSignature(raw, sig, secret);      // ✅ verifica
+        if (!ok) return withCORS(request, json({ ok:false, error:"invalid signature" }, 400), env);
+
         let event;
         try { event = JSON.parse(raw); } catch { event = null; }
         await handleWebhook(event, env);
         return withCORS(request, json({ ok: true }), env);
       }
+
 
       // --- Debug contatori ---
       if (request.method === "GET" && path === "/api/debug-counters") {
@@ -371,4 +377,36 @@ async function customersFind(url, env) {
     email,
     customerId: customer?.id || null
   });
+}
+
+/* ===== Stripe webhook signature (HMAC-SHA256) ===== */
+function parseStripeSigHeader(h) {
+  // es: "t=173... , v1=abc123, v1=altSig..."
+  const out = { t: "", v1: [] };
+  h.split(",").forEach(part => {
+    const [k, v] = part.split("=");
+    if (k === "t") out.t = v;
+    if (k === "v1") out.v1.push(v);
+  });
+  return out;
+}
+async function hmacSHA256Hex(secret, data) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(data));
+  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+function constantTimeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let r = 0;
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return r === 0;
+}
+async function verifyStripeSignature(raw, header, secret) {
+  if (!secret || !header) return false;
+  const { t, v1 } = parseStripeSigHeader(header);
+  if (!t || !v1.length) return false;
+  const signedPayload = `${t}.${raw}`;
+  const expected = await hmacSHA256Hex(secret, signedPayload);
+  return v1.some(s => constantTimeEqual(s, expected));
 }
