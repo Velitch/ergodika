@@ -1,54 +1,72 @@
 <!doctype html>
 <html lang="it">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="shortcut icon" href="https://www.ergodika.it/assets/images/favicon-96x96.png" type="image/x-icon">
   <title>Ergodika</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#7A4FFF">
+  <link rel="apple-touch-icon" href="/assets/images/icon-192.png">
+  <!-- (opzionale iOS fullscreen) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
   <script defer src="/assets/js/app.js"></script>
 </head>
+
 <body>
-<header class="header">
-  <nav class="nav">
-    <div class="logo">Ergodika <span class="badge">WebApp</span></div>
-    <div class="actions">
-      <a class="btn alt" href="/pages/manifesto.html">Manifesto</a>
-      <a class="btn alt" href="/pages/radio.html">Radio</a>
-      <a class="btn" href="/pages/members.html">Diventa supporter</a>
-    </div>
-  </nav>
-</header>
+  <header class="header">
+    <nav class="nav">
+      <div class="logo">Ergodika <span class="badge">WebApp</span></div>
+      <div class="actions">
+        <a class="btn alt" href="/pages/manifesto.html">Manifesto</a>
+        <a class="btn alt" href="/pages/radio.html">Radio</a>
+        <a class="btn" href="/pages/members.html">Diventa supporter</a>
+      </div>
+    </nav>
+  </header>
 
-<main>
-  <section class="hero">
-    <h1>Roma suona, senti..</h1>
-    <p class="lead">Suono locale, community e didattica.</p>
-    <div class="actions">
-      <a class="btn" href="/pages/manifesto.html">Sostieni (1€ / 3€ / 5€)</a>
-      <a class="btn alt" href="/pages/artist-onboarding.html">Artista? Unisciti alla rete</a>
-    </div>
-  </section>
+  <main>
+    <section class="hero">
+      <h1>Roma suona, senti..</h1>
+      <p class="lead">Suono locale, community e didattica.</p>
+      <div class="actions">
+        <a class="btn" href="/pages/manifesto.html">Sostieni (1€ / 3€ / 5€)</a>
+        <a class="btn alt" href="/pages/artist-onboarding.html">Artista? Unisciti alla rete</a>
+      </div>
+    </section>
 
-  <section class="section grid">
-    <div class="card"><h3>Supporto diretto</h3><p>Split 80/20 automatico. Nessuna intermediazione dei DSP.</p></div>
-    <div class="card"><h3>Radio H24</h3><p>Player integrato e visualizer. Configurazione in <span class="token">/config/app.json</span>.</p></div>
-    <div class="card"><h3>App installabile</h3><p>Funziona su iOS/Android/Desktop. Offline per le pagine base.</p></div>
-  </section>
-</main>
+    <section class="section grid">
+      <div class="card">
+        <h3>Supporto diretto</h3>
+        <p>Split 80/20 automatico. Nessuna intermediazione dei DSP.</p>
+      </div>
+      <div class="card">
+        <h3>Radio H24</h3>
+        <p>Player integrato e visualizer. Configurazione in <span class="token">/config/app.json</span>.</p>
+      </div>
+      <div class="card">
+        <h3>App installabile</h3>
+        <p>Funziona su iOS/Android/Desktop. Offline per le pagine base.</p>
+      </div>
+    </section>
+  </main>
 
-<footer class="footer small">© Ergodika — Developed by Gabriela Velitch</footer>
+  <footer class="footer small">© Ergodika — Developed by Gabriela Velitch</footer>
 
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js');
-}
-</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
+    }
+  </script>
+  <link rel="stylesheet" href="/assets/css/pwa-install.css">
+  <script src="/assets/js/pwa-install.js"></script>
 
 </body>
+
 </html>
