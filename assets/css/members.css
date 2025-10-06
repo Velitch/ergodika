@@ -1,59 +1,22 @@
-:root {
-  --fg: #0b1f2a;
-  --muted: #5f6b77;
-  --bg: #ffffff;
-  --br: #e6eaee;
-  --ok: #12a150;
-  --warn: #b24d1a;
-  --surface: #f6f9fc;
-}
+/* Members: usa i token del brand */
+*{box-sizing:border-box}
+.container{max-width:var(--brand-container);margin:40px auto;padding:0 18px}
+.page-title{font-family:var(--brand-font-display);font-weight:800;letter-spacing:-.02em;
+  font-size:clamp(26px,4vw,36px);margin:0 0 8px}
+.page-sub{opacity:.86;margin:0 0 24px;line-height:1.6}
 
-* { box-sizing: border-box; }
-body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  color: var(--fg);
-  background: var(--bg);
-  margin: 0;
-}
+.section{background:var(--brand-surface);border:1px solid var(--brand-border);
+  border-radius:var(--brand-radius);padding:18px;margin:18px 0}
+.section h2{margin:0 0 12px;font-size:clamp(18px,2.6vw,22px)}
+.grid{display:grid;gap:12px}
+@media (min-width:560px){.grid.cols-2{grid-template-columns:1fr 1fr}}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
-.container { max-width: 860px; margin: 40px auto; padding: 0 16px; }
-.page-title { font-size: 28px; margin: 0 0 8px; }
-.page-sub { color: var(--muted); margin: 0 0 24px; line-height: 1.6; }
-
-.section { border: 1px solid var(--br); border-radius: 14px; padding: 18px; margin: 18px 0; background: #fff; }
-.section h2 { margin: 0 0 12px; font-size: 20px; }
-.hint { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
-
-.grid { display: grid; gap: 12px; }
-@media (min-width: 560px) { .grid.cols-2 { grid-template-columns: 1fr 1fr; } }
-
-.btn {
-  appearance: none;
-  border: 1px solid var(--fg);
-  background: var(--fg);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.btn.ghost {
-  background: #fff;
-  color: var(--fg);
-  border-color: var(--fg);
-}
-.btn:disabled { opacity: .6; cursor: not-allowed; }
-
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-input[type="email"] {
-  padding: 10px 12px; border: 1px solid var(--br); border-radius: 10px; min-width: 280px;
-}
-
-/* Status / badge */
-.notice { display: none; padding: 12px; border-radius: 12px; border: 1px solid var(--br); background: var(--surface); margin: 0 0 16px; }
-.notice.show { display: block; }
-.notice.ok { border-color: #bfe7cf; background: #f0fff5; }
-.notice.warn { border-color: #ffd9c2; background: #fff8f3; }
-.badge { display: inline-block; padding: 4px 10px; border: 1px solid var(--br); border-radius: 999px; font-size: 12px; background: #f2f5f8; }
-.footer { margin-top: 12px; display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 14px; }
-.footer a { color: inherit; text-decoration: underline; }
+.notice{display:none;padding:12px;border-radius:var(--brand-radius);
+  border:1px solid var(--brand-border);background:var(--brand-soft);margin:0 0 16px}
+.notice.show{display:block}
+.notice.ok{border-color:rgba(69,212,140,.45);background:rgba(69,212,140,.10)}
+.notice.warn{border-color:#ffd9c2;background:#4a2d22}
+.badge{display:inline-block;padding:4px 10px;border:1px solid var(--brand-border);border-radius:999px;font-size:12px;background:var(--brand-soft)}
+.footer{margin-top:12px;display:flex;gap:8px;align-items:center;color:var(--brand-muted);font-size:14px}
+.footer a{text-decoration:underline}

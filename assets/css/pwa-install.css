@@ -1,17 +1,29 @@
 #pwa-install-bar {
   position: fixed; left: 12px; right: 12px; bottom: 12px;
   display: none; align-items: center; gap: 10px;
-  background: #0b1f2a; color: #fff; border-radius: 14px; padding: 10px 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.18); z-index: 9999;
+  background: var(--brand-gradient); color: #fff;
+  border-radius: 14px; padding: 10px 12px; z-index: 9999;
+  border: 1px solid rgba(255,255,255,.18);
 }
 #pwa-install-bar.show { display: flex; }
-#pwa-install-bar .title { font-weight: 700; }
-#pwa-install-bar .hint { opacity: .8; font-size: 13px; }
+#pwa-install-bar .title { font-weight: 800; }
+#pwa-install-bar .hint { opacity: .9; font-size: 13px; }
 #pwa-install-bar button {
-  appearance: none; cursor: pointer; border-radius: 999px; border: 1px solid #fff;
-  background: #fff; color: #0b1f2a; font-weight: 700; padding: 8px 12px;
+  appearance: none; cursor: pointer; border-radius: 999px; border: 1px solid rgba(255,255,255,.9);
+  background: #fff; color: var(--ink); font-weight: 800; padding: 10px 12px; min-height: 40px;
 }
-#pwa-install-bar .ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.5); }
-@media (min-width: 720px) {
-  #pwa-install-bar { left: auto; width: 420px; }
+#pwa-install-bar .ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.6); }
+
+#pwa-ios-modal{
+  position: fixed; left: 12px; right: 12px; bottom: 12px;
+  background: var(--brand-surface); color: #fff; border: 1px solid var(--brand-border);
+  border-radius: 14px; padding: 14px; z-index: 10000; display: none;
 }
+#pwa-ios-modal.show{display:block}
+#pwa-ios-modal .row{display:flex;gap:10px;align-items:center;margin-top:8px}
+#pwa-ios-modal .icon{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
+#pwa-ios-modal .title{font-weight:800;margin:0 0 4px}
+#pwa-ios-modal .hint{font-size:14px;color:var(--brand-muted);margin:0}
+#pwa-ios-modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+#pwa-ios-modal button{appearance:none;border-radius:999px;padding:10px 12px;cursor:pointer;font-weight:800;border:1px solid #fff;background:#fff;color:var(--ink)}
+#pwa-ios-modal .ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.6)}
