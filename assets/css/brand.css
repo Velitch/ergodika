@@ -1,75 +1,22 @@
-/* === BRAND TOKENS (dark) === */
 :root{
-  /* colori brand */
   --violet:#7A4FFF; --magenta:#FF2F7D; --orange:#FF6B3D;
   --ink:#0f0f16; --paper:#ffffff; --muted:rgba(255,255,255,.82);
-
-  /* mapping tokens */
   --brand-font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --brand-font-display: "Space Grotesk", Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --brand-text:#fff;
-  --brand-muted:var(--muted);
-  --brand-bg:var(--ink);
-  --brand-surface:rgba(255,255,255,.06);
-  --brand-soft:rgba(255,255,255,.04);
-  --brand-border:rgba(255,255,255,.12);
-  --brand-primary:#fff;
-  --brand-primary-ink:#0f0f16;
   --brand-gradient: linear-gradient(135deg,var(--violet),var(--magenta),var(--orange));
-  --brand-radius:16px;
-  --brand-container:1080px;
-  --brand-focus: 0 0 0 3px rgba(122,79,255,.45);
+  --surface: rgba(255,255,255,.06);
+  --border: rgba(255,255,255,.12);
 }
-
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--brand-bg);color:var(--brand-text);font-family:var(--brand-font)}
+body{margin:0;background:var(--ink);color:#fff;font-family:var(--brand-font)}
 a{color:inherit;text-decoration:none}
-.container,.wrap{max-width:var(--brand-container);margin:28px auto;padding:0 18px}
-.page-title{font-family:var(--brand-font-display);font-weight:800;letter-spacing:-.02em;
-  font-size:clamp(28px,5vw,42px);margin:0 0 8px}
-.page-sub{opacity:.86;margin:0 0 18px;line-height:1.6}
-
-.card,.section{
-  background:var(--brand-surface);
-  border:1px solid var(--brand-border);
-  border-radius:var(--brand-radius);
-  padding:18px;
-}
-
+.wrap{max-width:1080px;margin:28px auto;padding:0 18px}
+.hero{background:radial-gradient(1200px 500px at 20% 0%,rgba(122,79,255,.26),transparent),radial-gradient(1200px 500px at 80% 0%,rgba(255,47,125,.20),transparent);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px}
+.page-title{font-family:var(--brand-font-display);font-weight:800;letter-spacing:-.02em;font-size:clamp(28px,5vw,42px);margin:0 0 8px}
+.page-sub{opacity:.86;margin:0 0 18px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--brand-gradient);border:none;color:#fff;font-weight:800;cursor:pointer;min-height:44px}
+.btn.alt{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
 .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-
-.btn{
-  display:inline-flex;align-items:center;gap:10px;
-  padding:12px 16px;border-radius:14px;border:none;cursor:pointer;
-  background:var(--brand-gradient);color:#fff;font-weight:800;min-height:44px;
-}
-.btn.alt{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;
-}
-.btn:focus-visible{outline:none;box-shadow:var(--brand-focus)}
+input,select,textarea{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:12px;padding:12px 14px;min-height:44px}
 .small{font-size:12px;opacity:.82}
-.badge{font-size:12px;opacity:.85}
-.token{background:rgba(255,255,255,.08);padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18)}
-
-label{font-weight:600;font-size:14px}
-input,textarea,select{
-  width:100%;max-width:100%;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.18);
-  color:#fff;border-radius:12px;padding:12px 14px;min-height:44px;
-}
-input::placeholder,textarea::placeholder{color:rgba(255,255,255,.6)}
-input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none;box-shadow:var(--brand-focus);border-color:rgba(122,79,255,.55)}
-
-.hero{
-  background:
-    radial-gradient(1200px 500px at 20% 0%,rgba(122,79,255,.26),transparent),
-    radial-gradient(1200px 500px at 80% 0%,rgba(255,47,125,.20),transparent);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:20px;padding:28px;
-}
-
-input[type="range"]{
-  accent-color: var(--violet);
-}

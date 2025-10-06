@@ -6,4 +6,9 @@
   "radio": {
     "streamUrl": ""
   }
+  "prices": {
+    "sub_basic": "price_live_xxx",
+    "sub_plus": "price_live_xxx",
+    "sub_premium": "price_live_xxx"
+  }
 }

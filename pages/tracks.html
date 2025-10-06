@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="it">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brani — Ergodika</title>
+<link rel="stylesheet" href="/assets/css/brand.css">
+<link rel="stylesheet" href="/assets/css/tracks.css">
+<body>
+  <main class="wrap">
+    <div class="hero">
+      <h1 class="page-title">Brani</h1>
+      <p class="page-sub">Ricerca, filtra e ascolta. Anteprima 30s per tutti; sblocco singolo o abbonamento per l’ascolto completo.</p>
+      <div class="filters">
+        <input id="q" placeholder="Cerca titolo o artista">
+        <select id="genre">
+          <option value="">Genere (tutti)</option>
+          <option>Jazz</option><option>Rock</option><option>Classica</option><option>Elettronica</option>
+        </select>
+        <select id="premium">
+          <option value="">Tipo</option>
+          <option value="free">Gratuiti</option>
+          <option value="premium">Premium</option>
+        </select>
+        <button id="btn-search" class="btn">Cerca</button>
+      </div>
+    </div>
+
+    <section class="grid" id="results"></section>
+  </main>
+
+  <!-- Sticky Player -->
+  <div class="player-bar" id="player">
+    <button id="play" class="btn alt">Play</button>
+    <div class="title" id="now-title">—</div>
+    <button class="btn alt" id="tip1">Tip 1€</button>
+    <button class="btn alt" id="unlock">Sblocca</button>
+    <a class="btn" id="subscribe" href="/pages/members.html">Abbonati</a>
+    <audio id="audio" preload="none"></audio>
+  </div>
+
+  <script src="/assets/js/payments.js"></script>
+  <script src="/assets/js/tracks.js"></script>
+</body>
+</html>
