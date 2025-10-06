@@ -8,15 +8,6 @@ export default {
 
     // Preflight CORS
     if (request.method === "OPTIONS") {
-      return cors(request, new Response(null, { status: 204 }), env);
-    }
-    export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-    const path = url.pathname;
-
-    // Preflight CORS
-    if (request.method === "OPTIONS") {
       return cors(new Response(null, { status: 204 }), env);
     }
 
