@@ -1,14 +1,13 @@
-// PWA install banner + iOS hint + update toast
+// PWA install banner + iOS hint + pulsante "Installa app"
 (function () {
   let deferredPrompt = null;
 
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
                     || (window.navigator.standalone === true);
-
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-  // UI builder
+  /* ---------- UI: barra suggerimento (facoltativa) ---------- */
   function ensureBar() {
     if (document.getElementById('pwa-install-bar')) return;
     const bar = document.createElement('div');
@@ -28,66 +27,95 @@
       localStorage.setItem('pwa:dismissed', '1');
     });
 
-    document.getElementById('pwa-install-btn').addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        bar.classList.remove('show');
-        localStorage.setItem('pwa:dismissed', '1');
-      } else if (isIOS) {
-        // iOS: niente prompt — mostra istruzioni
-        alert("Su iPhone: • Tocca il pulsante Condividi • Scegli 'Aggiungi alla schermata Home'");
-      }
-    });
+    document.getElementById('pwa-install-btn').addEventListener('click', () => installAction());
   }
-
   function showBar() {
     if (localStorage.getItem('pwa:dismissed') === '1') return;
     ensureBar();
-    document.getElementById('pwa-install-bar').classList.add('show');
-    // Testo iOS
+    const bar = document.getElementById('pwa-install-bar');
+    bar.classList.add('show');
     if (isIOS) {
-      document.getElementById('pwa-hint').textContent =
-        "Su iPhone: Condividi → Aggiungi alla schermata Home";
+      document.getElementById('pwa-hint').textContent = "Su iPhone: Condividi → Aggiungi alla schermata Home";
       document.getElementById('pwa-install-btn').textContent = "Come si fa";
     }
   }
 
-  // Prompt (Chrome/Edge/Android/Desktop)
+  /* ---------- Pulsante di install manuale ---------- */
+  function enableTriggers() {
+    document.querySelectorAll('[data-install-pwa]').forEach(btn => {
+      btn.removeAttribute('disabled');
+      btn.style.display = '';
+    });
+  }
+  function hideTriggers() {
+    document.querySelectorAll('[data-install-pwa]').forEach(btn => {
+      btn.setAttribute('hidden', 'hidden');
+      btn.style.display = 'none';
+    });
+  }
+  async function installAction() {
+    // Android/Desktop: prompt disponibile
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      localStorage.setItem('pwa:dismissed', '1');
+      const bar = document.getElementById('pwa-install-bar');
+      if (bar) bar.classList.remove('show');
+      return;
+    }
+    // iOS: mostra istruzioni
+    if (isIOS && !isStandalone) {
+      alert("Su iPhone:\n• Tocca il pulsante Condividi\n• Scegli 'Aggiungi alla schermata Home'");
+      return;
+    }
+    // Fallback: mostra la barra suggerimento se non installata
+    if (!isStandalone) showBar();
+  }
+
+  function bindTriggers() {
+    document.querySelectorAll('[data-install-pwa]').forEach(btn => {
+      btn.addEventListener('click', installAction);
+    });
+    // se già installata, nascondi
+    if (isStandalone) hideTriggers();
+    // su iOS non c'è beforeinstallprompt → lascia visibile per mostrare le istruzioni
+    if (isIOS && !isStandalone) enableTriggers();
+  }
+
+  /* ---------- Eventi PWA ---------- */
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (!isStandalone) showBar();
+    enableTriggers();          // abilita pulsante manuale
+    if (!isStandalone) showBar(); // mostra anche la barra (facoltativo)
   });
 
-  // Install avvenuta
   window.addEventListener('appinstalled', () => {
     localStorage.removeItem('pwa:dismissed');
+    hideTriggers();
     const bar = document.getElementById('pwa-install-bar');
     if (bar) bar.classList.remove('show');
   });
 
-  // Se iOS standalone mancante: mostra hint una volta
   window.addEventListener('load', () => {
-    if (!isStandalone && isIOS && isSafari) {
-      // Mostra hint dopo 1.5s
-      setTimeout(() => showBar(), 1500);
+    bindTriggers();
+    // toast aggiornamento SW (opzionale)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        const t = document.createElement('div');
+        t.textContent = 'App aggiornata';
+        Object.assign(t.style, {
+          position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'16px',
+          background:'#0b1f2a',color:'#fff',padding:'8px 12px',borderRadius:'999px',zIndex:9999
+        });
+        document.body.appendChild(t); setTimeout(()=>t.remove(), 2500);
+      });
     }
   });
 
-  // Aggiornamento SW → messaggio semplice
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      // Piccolo toast
-      const t = document.createElement('div');
-      t.textContent = 'App aggiornata';
-      Object.assign(t.style, {
-        position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'16px',
-        background:'#0b1f2a',color:'#fff',padding:'8px 12px',borderRadius:'999px',zIndex:9999
-      });
-      document.body.appendChild(t);
-      setTimeout(()=>t.remove(), 2500);
-    });
-  }
+  // Esponi una piccola API globale (se vuoi richiamarla da altri script)
+  window.ErgodikaPWA = {
+    install: installAction
+  };
 })();
