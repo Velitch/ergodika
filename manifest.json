@@ -1,7 +1,7 @@
 {
   "name": "Ergodika",
   "short_name": "Ergodika",
-  "start_url": "/",
+  "start_url": "/index.html?source=pwa",
   "display": "standalone",
   "background_color": "#0f0f16",
   "theme_color": "#7A4FFF",
