@@ -1,0 +1,15 @@
+/* Minimal styles specific to account page */
+#account-cta{ display:flex; gap:10px; align-items:center }
+.account-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:999px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+  font-size:14px;
+}
+.account-menu{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+.account-menu a{ text-decoration:underline; opacity:.9 }
+.loading{ opacity:.8 }
+.kv{ display:grid; grid-template-columns:160px 1fr; gap:6px 12px; }
+.kv .k{ opacity:.7 }
+.kv .v{ font-weight:600 }
+.badge{ font-size:12px; opacity:.8 }

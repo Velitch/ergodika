@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Profilo — Ergodika</title>
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <link rel="stylesheet" href="/assets/css/account.css">
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <a class="logo" href="/">ERGODIKA</a>
+      <div id="account-cta"></div>
+    </nav>
+  </header>
+
+  <main class="wrap" style="max-width:860px">
+    <section class="hero">
+      <h1 class="page-title">Il tuo profilo</h1>
+      <p class="page-sub">Gestisci il tuo account, i collegamenti e la sessione.</p>
+
+      <div id="account-card" class="card" aria-live="polite">
+        <div class="loading">Carico i tuoi dati…</div>
+      </div>
+
+      <div class="section" id="actions" style="display:none">
+        <button class="btn" id="btn-logout">Esci</button>
+        <a class="btn alt" href="/pages/tracks.html">Vai ai brani</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small class="small">© Ergodika</small>
+  </footer>
+
+  <script src="/assets/js/account.js?v=1"></script>
+</body>
+</html>
