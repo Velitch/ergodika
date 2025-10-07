@@ -1,30 +1,26 @@
 <!doctype html>
 <html lang="it">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Accedi — Ergodika</title>
-  <link rel="stylesheet" href="/assets/css/brand.css">
-  <link rel="stylesheet" href="/assets/css/auth.css">
-</head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Accedi — Ergodika</title>
+<link rel="stylesheet" href="/assets/css/brand.css">
+<link rel="stylesheet" href="/assets/css/auth.css">
+
 <body>
   <main class="wrap">
     <div class="hero">
       <h1 class="page-title">Accedi</h1>
-      <p class="page-sub">Bentornato! Usa email o Google. Dopo l’accesso tornerai al sito.</p>
-
+      <p class="page-sub">Bentornato! Usa email o Google.</p>
       <form id="login-form" class="grid" style="gap:12px;max-width:520px">
         <div>
           <label for="login-email">Email</label>
-          <input id="login-email" name="email" type="email" required
-                 placeholder="nome@esempio.it" autocomplete="email">
+          <input id="login-email" name="email" type="email" required placeholder="nome@esempio.it" autocomplete="email">
         </div>
         <div>
           <label for="current-password">Password</label>
-          <input id="current-password" name="password" type="password" required
-                 placeholder="Password" autocomplete="current-password">
+          <input id="current-password" name="password" type="password" required placeholder="Password" autocomplete="current-password">
         </div>
-        <div class="btn-row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <div class="btn-row">
           <button class="btn" type="submit">Accedi</button>
           <button class="btn alt" type="button" id="google-btn">Accedi con Google</button>
           <a class="btn alt" href="/pages/signup.html">Crea account</a>
@@ -33,7 +29,7 @@
       </form>
     </div>
   </main>
-
-  <script src="/assets/js/auth.js?v=3"></script>
+  <script src="/assets/js/auth.js?v=2"></script>
 </body>
+
 </html>
