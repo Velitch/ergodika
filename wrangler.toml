@@ -4,10 +4,11 @@ compatibility_date = "2024-09-10"
 
 [vars]
 SITE_URL = "https://www.ergodika.it"
-ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://www.ergodika-api.ergodika.workers.dev"
+ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://api.ergodika.it"
 CONNECT_FEE_PERCENT = "20"
 STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 = "price_1SEy51RrORapViImXAr4Lmae"
 STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 = "price_1SF1AXRrORapViImBo1xdjvr"
+GOOGLE_REDIRECT_URL = "https://api.ergodika.it/api/auth/google/callback"
 
 [[kv_namespaces]]
 binding = "ERGODIKA"

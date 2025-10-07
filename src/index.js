@@ -84,10 +84,8 @@ function json(data, status = 200) {
 }
 
 function cors(res, env) {
-  const allowed = [
-    "https://www.ergodika.it",
-    "https://ergodika.it",
-  ];
+  const allowed = (env.ALLOWED_ORIGINS || "https://www.ergodika.it,https://ergodika.it,https://api.ergodika.it")
+    .split(",").map(s => s.trim()).filter(Boolean);
   // Nota: qui leggiamo dall'header della RESPONSE per restare compatibili con la tua implementazione
   const reqOrigin = res.headers.get("Origin") || allowed[0];
   const origin = allowed.includes(reqOrigin) ? reqOrigin : allowed[0];
