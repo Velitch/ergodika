@@ -1,8 +1,8 @@
 // src/index.js
-import { routeAuth }    from "./auth.js";
-import { routeTracks }  from "./tracks.js";
-import { routePayments } from "./payments.js";
-import { routeArtists } from "./artists.js"; // se non l'hai, puoi rimuovere questa riga
+//import { routeAuth }    from "./auth.js";
+//import { routeTracks }  from "./tracks.js";
+//import { routePayments } from "./payments.js";
+//import { routeArtists } from "./artists.js"; // se non l'hai, puoi rimuovere questa riga
 
 // Cloudflare Worker — Ergodika API (Stripe) con CORS multi-origin e contatori KV
 
