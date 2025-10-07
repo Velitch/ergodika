@@ -16,6 +16,6 @@ binding = "ERGODIKA"
 id = "5ea4fe53af054fe3933b52ca81b29566"
 
 [[d1_databases]]
-binding = "ergodika"
+binding = "DB"
 database_name = "ergodika"
 database_id = "9a27eb90-4948-4b40-8fab-d5497ec4a61a"
