@@ -12,7 +12,7 @@
 
   function absoluteRedirectFromQuery() {
     const qs = new URLSearchParams(location.search);
-    const dest = qs.get("redirect") || "/pages/account.html";
+    const dest = qs.get("redirect") || "/";
     const siteBase = location.origin;
     return dest.startsWith("http") ? dest : siteBase + dest;
   }
