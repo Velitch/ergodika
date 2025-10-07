@@ -11,7 +11,7 @@ routes = [
 
 [vars]
 SITE_URL = "https://www.ergodika.it"
-ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://www.ergodika-api.ergodika.workers.dev,https://api.ergodika.it/"
+ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://www.ergodika-api.ergodika.workers.dev"
 CONNECT_FEE_PERCENT = "20"
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
 GOOGLE_REDIRECT_URL = "https://api.ergodika.it/api/auth/google/callback"
