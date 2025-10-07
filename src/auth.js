@@ -265,7 +265,7 @@ async function authRefresh(request, env){
   await d1DeleteRefresh(env, payload.sub, payload.jti);
   const { cookies: setCookies } = await issueSessionCookies(user, env);
   return jsonWithCookies({ ok:true }, setCookies);
-}
+
 
 /* =======================================================
  * Session cookies
