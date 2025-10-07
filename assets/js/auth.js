@@ -72,3 +72,12 @@
     });
   }
 })();
+
+const qs = new URLSearchParams(location.search);
+const dest = qs.get("redirect") || "/";
+// forza assoluto sul sito
+const siteBase = location.origin; // es. https://www.ergodika.it
+const redirect = dest.startsWith("http") ? dest : siteBase + dest;
+
+// ...
+location.href = `${WORKER}/api/auth/google/start?redirect=${encodeURIComponent(redirect)}`;

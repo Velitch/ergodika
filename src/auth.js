@@ -354,6 +354,25 @@ async function googleCallback(url, env){
   const sub = payload?.sub;
   if (!email || !sub) return json({ ok:false, error:"invalid google profile" }, 400);
 
+  const base = env.SITE_URL || "https://ergodika.it";  // es. https://www.ergodika.it
+  let redirect = base;
+
+  const stateRaw = url.searchParams.get("state");
+  if (stateRaw) {
+    try {
+      const st = JSON.parse(atob(stateRaw));
+      const r = (st && st.r) || "/";
+      if (typeof r === "string") {
+        if (r.startsWith("http")) {
+          // Evita open-redirect: consenti solo se è lo stesso sito
+          redirect = r.startsWith(base) ? r : base;
+        } else if (r.startsWith("/")) {
+          redirect = base + r;
+        }
+      }
+    } catch {}
+  }
+
   // Upsert utente
   let user = await d1GetUserByGoogleSub(env, sub);
   if (!user) {
