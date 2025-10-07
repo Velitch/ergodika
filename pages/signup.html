@@ -5,6 +5,7 @@
 <title>Crea account — Ergodika</title>
 <link rel="stylesheet" href="/assets/css/brand.css">
 <link rel="stylesheet" href="/assets/css/auth.css">
+
 <body>
   <main class="wrap">
     <div class="hero">
@@ -12,22 +13,23 @@
       <p class="page-sub">Registrati con email o con Google.</p>
       <form id="signup-form" class="grid" style="gap:12px;max-width:520px">
         <div>
-          <label>Email</label>
-          <input name="email" type="email" required placeholder="nome@esempio.it" autocomplete="email">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required placeholder="nome@esempio.it" autocomplete="email">
         </div>
         <div>
-          <label>Password</label>
-          <input name="password" type="password" required minlength="8" placeholder="Almeno 8 caratteri" autocomplete="new-password">
+          <label for="new-password">Password</label>
+          <input id="new-password" name="password" type="password" required minlength="8" placeholder="Almeno 8 caratteri" autocomplete="new-password">
         </div>
         <div class="btn-row">
           <button class="btn" type="submit">Crea account</button>
           <button class="btn alt" type="button" id="google-btn">Accedi con Google</button>
           <a class="btn alt" href="/pages/login.html">Hai già un account? Accedi</a>
         </div>
-        <div id="msg" class="small"></div>
+        <div id="msg" class="small" aria-live="polite"></div>
       </form>
     </div>
   </main>
-  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/auth.js?v=2"></script>
 </body>
+
 </html>

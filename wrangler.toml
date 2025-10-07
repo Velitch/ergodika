@@ -7,10 +7,8 @@ SITE_URL = "https://www.ergodika.it"
 ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://www.ergodika-api.ergodika.workers.dev"
 CONNECT_FEE_PERCENT = "20"
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
-GOOGLE_CLIENT_ID = "570636598415-dhsleh9gi3ftgjk88fohile2noiaok2c.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
 GOOGLE_REDIRECT_URL = "https://ergodika-api.ergodika.workers.dev/api/auth/google/callback"
-STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 = "price_1SEy51RrORapViImXAr4Lmae"
+STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 = "price_1SEy51RrOR apViImXAr4Lmae"
 STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 = "price_1SF1AXRrORapViImBo1xdjvr"
 
 [[kv_namespaces]]
@@ -18,6 +16,6 @@ binding = "ERGODIKA"
 id = "5ea4fe53af054fe3933b52ca81b29566"
 
 [[d1_databases]]
-binding = "ergodika"
+binding = "DB"
 database_name = "ergodika"
 database_id = "9a27eb90-4948-4b40-8fab-d5497ec4a61a"
