@@ -140,8 +140,8 @@ function jsonWithCookies(data, cookies=[], status=200){
 }
 function clearAuthCookies(){
   return [
-    cookieSerialize("session","",{ maxAge:0, path:"/" }),
-    cookieSerialize("refresh","",{ maxAge:0, path:"/" })
+    cookieSerialize("session","", { maxAge:0, path:"/", secure:true, sameSite:"None" }),
+    cookieSerialize("refresh","", { maxAge:0, path:"/", secure:true, sameSite:"None" })
   ];
 }
 
@@ -275,9 +275,13 @@ async function issueSessionCookies(user, env){
 
   await d1InsertRefresh(env, user.id, jti, exp);
 
-  const cookies = [
-    cookieSerialize("session", session, { maxAge:accessTtl, path:"/", httpOnly:true, secure:true, sameSite:"Lax" }),
-    cookieSerialize("refresh", refresh, { maxAge:refreshTtl, path:"/", httpOnly:true, secure:true, sameSite:"Lax" })
+  const setCookies = [
+    cookieSerialize("session", session, {
+      maxAge: accessTtl, path: "/", httpOnly: true, secure: true, sameSite: "None"
+    }),
+    cookieSerialize("refresh", refresh, {
+      maxAge: refreshTtl, path: "/", httpOnly: true, secure: true, sameSite: "None"
+    })
   ];
   return { cookies };
 }
