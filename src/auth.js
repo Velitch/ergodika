@@ -293,8 +293,7 @@ async function issueSessionCookies(user, env){
       cookieSerialize("session","", { maxAge:0, path:"/", secure:true, sameSite:"None" }),
       cookieSerialize("refresh","", { maxAge:0, path:"/", secure:true, sameSite:"None" })
     ];
-  }
-  
+
   return { cookies };
 }
 
