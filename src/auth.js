@@ -1,5 +1,5 @@
-// src/auth.js
 import { json } from "./index.js";
+
 /* =======================================================
  * Utils
  * ======================================================= */
@@ -130,7 +130,7 @@ async function d1HasRefresh(env, userId, jti){
 }
 
 /* =======================================================
- * Cookie helpers (JSON + Set-Cookie)
+ * Cookie helpers
  * ======================================================= */
 function jsonWithCookies(data, cookies=[], status=200){
   const res = json(data, status);
@@ -146,7 +146,7 @@ function clearAuthCookies(){
 }
 
 /* =======================================================
- * Public API (router)
+ * Router
  * ======================================================= */
 export async function routeAuth(request, url, env){
   const path = url.pathname;
@@ -169,12 +169,10 @@ export async function routeAuth(request, url, env){
     return await authRefresh(request, env);
   }
 
-  // Google OAuth
   if (request.method==="GET" && path==="/api/auth/google/start") {
     return await googleStart(url, env);
   }
   if (request.method==="GET" && path==="/api/auth/google/callback") {
-    // Importante: qui restituiamo un 302 con Set-Cookie
     return await googleCallback(url, env);
   }
 
@@ -184,48 +182,47 @@ export async function routeAuth(request, url, env){
 async function safeJson(request){ try { return await request.json(); } catch { return {}; } }
 
 /* =======================================================
- * Flussi email/password
+ * Email/Password flows
  * ======================================================= */
- async function authRegister(body, env){
-   const email = normEmail(body.email);
-   const password = body.password||"";
-   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ ok:false, error:"invalid email" }, 400);
-   if (password.length < 8) return json({ ok:false, error:"weak password" }, 400);
+async function authRegister(body, env){
+  const email = normEmail(body.email);
+  const password = body.password||"";
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ ok:false, error:"invalid email" }, 400);
+  if (password.length < 8) return json({ ok:false, error:"weak password" }, 400);
 
-   const exists = await d1GetUserByEmail(env, email);
-   if (exists) return json({ ok:false, error:"email already registered" }, 409);
+  const exists = await d1GetUserByEmail(env, email);
+  if (exists) return json({ ok:false, error:"email already registered" }, 409);
 
-   const saltB64 = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))));
-   const pwd = await hashPassword(password, saltB64);
-   const user = {
-     id:newId(12), email,
-     password_alg: pwd.alg, password_iter: pwd.iter, password_salt: pwd.salt, password_hash: pwd.hash,
-     google_sub: null, roles:["user"]
-   };
-   await d1InsertUser(env, user);
-   const { cookies: setCookies } = await issueSessionCookies(user, env);
-   return jsonWithCookies({ ok:true, user:{ id:user.id, email, roles:user.roles } }, setCookies);
- }
+  const saltB64 = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))));
+  const pwd = await hashPassword(password, saltB64);
+  const user = {
+    id:newId(12), email,
+    password_alg: pwd.alg, password_iter: pwd.iter, password_salt: pwd.salt, password_hash: pwd.hash,
+    google_sub: null, roles:["user"]
+  };
+  await d1InsertUser(env, user);
+  const { cookies: setCookies } = await issueSessionCookies(user, env);
+  return jsonWithCookies({ ok:true, user:{ id:user.id, email, roles:user.roles } }, setCookies);
+}
 
- async function authLogin(body, env){
-   const email = normEmail(body.email);
-   const password = body.password||"";
-   const user = await d1GetUserByEmail(env, email);
-   if (!user) return json({ ok:false, error:"invalid credentials" }, 401);
+async function authLogin(body, env){
+  const email = normEmail(body.email);
+  const password = body.password||"";
+  const user = await d1GetUserByEmail(env, email);
+  if (!user) return json({ ok:false, error:"invalid credentials" }, 401);
 
-   const ok = await verifyPassword(password, {
-     alg:user.password_alg, iter:user.password_iter, salt:user.password_salt, hash:user.password_hash
-   });
-   if (!ok) return json({ ok:false, error:"invalid credentials" }, 401);
+  const ok = await verifyPassword(password, {
+    alg:user.password_alg, iter:user.password_iter, salt:user.password_salt, hash:user.password_hash
+  });
+  if (!ok) return json({ ok:false, error:"invalid credentials" }, 401);
 
-   const { cookies: setCookies } = await issueSessionCookies(user, env);
-   return jsonWithCookies({ ok:true, user:{ id:user.id, email:user.email, roles:JSON.parse(user.roles||"[]") } }, setCookies);
- }
-
+  const { cookies: setCookies } = await issueSessionCookies(user, env);
+  return jsonWithCookies({ ok:true, user:{ id:user.id, email:user.email, roles:JSON.parse(user.roles||"[]") } }, setCookies);
+}
 
 async function authLogout(request, env){
-  const cookies = parseCookies(request);
-  const refresh = cookies["refresh"]||"";
+  const reqCookies = parseCookies(request);
+  const refresh = reqCookies["refresh"]||"";
   if (refresh) {
     const payload = await jwtVerify(refresh, env.AUTH_SECRET);
     if (payload?.sub && payload?.jti) await d1DeleteRefresh(env, payload.sub, payload.jti);
@@ -260,20 +257,13 @@ async function authRefresh(request, env){
   return jsonWithCookies({ ok:true }, setCookies);
 }
 
-
-  // Rotation: revoke old and issue new
-  await d1DeleteRefresh(env, payload.sub, payload.jti);
-  const { cookies: setCookies } = await issueSessionCookies(user, env);
-  return jsonWithCookies({ ok:true }, setCookies);
-
-
 /* =======================================================
  * Session cookies
  * ======================================================= */
 async function issueSessionCookies(user, env){
   const roles = typeof user.roles==="string" ? JSON.parse(user.roles||"[]") : (user.roles||[]);
-  const accessTtl = 15*60;           // 15 min
-  const refreshTtl = 30*24*60*60;    // 30 giorni
+  const accessTtl = 15*60;                 // 15 min
+  const refreshTtl = 30*24*60*60;          // 30 giorni
 
   const session = await jwtSign({ sub:user.id, email:user.email, roles }, env.AUTH_SECRET, accessTtl);
   const jti = newId(16);
@@ -282,24 +272,16 @@ async function issueSessionCookies(user, env){
 
   await d1InsertRefresh(env, user.id, jti, exp);
 
-  // in issueSessionCookies(...)
-  const setCookies = [
+  const cookies = [
     cookieSerialize("session", session, { maxAge:accessTtl, path:"/", httpOnly:true, secure:true, sameSite:"None" }),
     cookieSerialize("refresh", refresh, { maxAge:refreshTtl, path:"/", httpOnly:true, secure:true, sameSite:"None" })
   ];
-  // in clearAuthCookies()
-  function clearAuthCookies(){
-    return [
-      cookieSerialize("session","", { maxAge:0, path:"/", secure:true, sameSite:"None" }),
-      cookieSerialize("refresh","", { maxAge:0, path:"/", secure:true, sameSite:"None" })
-    ];
-
   return { cookies };
 }
 
 export async function getAuthUser(request, env){
-  const cookies = parseCookies(request);
-  const token = cookies["session"];
+  const reqCookies = parseCookies(request);
+  const token = reqCookies["session"];
   if (!token) return null;
   const payload = await jwtVerify(token, env.AUTH_SECRET);
   if (!payload) return null;
@@ -313,10 +295,9 @@ export async function requireAuth(request, env){
 }
 
 /* =======================================================
- * Google OAuth (OIDC light)
+ * Google OAuth
  * ======================================================= */
 async function googleStart(url, env){
-  // Mettiamo un "state" con redirect per tornare al punto giusto
   const redirect = url.searchParams.get("redirect") || env.SITE_URL || "/";
   const stateObj = { r: redirect, n: b64urlStr(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(8)))) };
   const state = btoa(JSON.stringify(stateObj));
@@ -335,6 +316,11 @@ async function googleStart(url, env){
 }
 
 async function googleCallback(url, env){
+  // Guard-rail utile durante setup
+  if (!env.DB || !env.DB.prepare) {
+    return json({ ok:false, error:"D1 binding 'DB' mancante sul Worker" }, 500);
+  }
+
   const code = url.searchParams.get("code");
   let redirect = env.SITE_URL || "/";
   const stateRaw = url.searchParams.get("state");
@@ -346,7 +332,6 @@ async function googleCallback(url, env){
   }
   if (!code) return json({ ok:false, error:"missing code" }, 400);
 
-  // Exchange code → token
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
     method:"POST",
     headers:{ "content-type":"application/x-www-form-urlencoded" },
@@ -361,7 +346,6 @@ async function googleCallback(url, env){
   const tok = await tokenRes.json();
   if (!tokenRes.ok) return json({ ok:false, error: tok.error_description || "oauth error" }, 400);
 
-  // Decode id_token (MVP: senza verifica JWK; TODO: validare iss/aud/exp via JWK)
   const idt = tok.id_token || "";
   const [, payloadB64] = idt.split(".");
   let payload;
@@ -370,7 +354,7 @@ async function googleCallback(url, env){
   const sub = payload?.sub;
   if (!email || !sub) return json({ ok:false, error:"invalid google profile" }, 400);
 
-  // find or create user
+  // Upsert utente
   let user = await d1GetUserByGoogleSub(env, sub);
   if (!user) {
     const byEmail = await d1GetUserByEmail(env, email);
@@ -384,11 +368,9 @@ async function googleCallback(url, env){
     }
   }
 
-  // Issue cookies & redirect
-  // dopo aver risolto/letto il profilo Google e ottenuto `user`
+  // Issue cookies + redirect
   const { cookies: setCookies } = await issueSessionCookies(user, env);
   const res = new Response(null, { status: 302, headers: { "Location": redirect }});
   setCookies.forEach(c => res.headers.append("Set-Cookie", c));
   return res;
-
 }
