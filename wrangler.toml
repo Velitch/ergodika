@@ -17,7 +17,7 @@ CONNECT_FEE_PERCENT = "20"
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
 
 # FINCHÉ api.ergodika.it NON è attivo, usa il redirect su workers.dev:
-GOOGLE_REDIRECT_URL = "https://ergodika-api.ergodika.workers.dev/api/auth/google/callback"
+GOOGLE_REDIRECT_URL = "https://api.ergodika.it/api/auth/google/callback"
 # rimuovi lo spazio qui ↓↓↓
 STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 = "price_1SEy51RrORapViImXAr4Lmae"
 STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 = "price_1SF1AXRrORapViImBo1xdjvr"
