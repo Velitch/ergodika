@@ -292,7 +292,7 @@ async function issueSessionCookies(user, env){
   ];
   }
   return { cookies };
-}
+
 
 export async function getAuthUser(request, env){
   const cookies = parseCookies(request);
