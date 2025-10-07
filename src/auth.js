@@ -282,14 +282,19 @@ async function issueSessionCookies(user, env){
 
   await d1InsertRefresh(env, user.id, jti, exp);
 
+  // in issueSessionCookies(...)
   const setCookies = [
-    cookieSerialize("session", session, {
-      maxAge: accessTtl, path: "/", httpOnly: true, secure: true, sameSite: "None"
-    }),
-    cookieSerialize("refresh", refresh, {
-      maxAge: refreshTtl, path: "/", httpOnly: true, secure: true, sameSite: "None"
-    })
+    cookieSerialize("session", session, { maxAge:accessTtl, path:"/", httpOnly:true, secure:true, sameSite:"None" }),
+    cookieSerialize("refresh", refresh, { maxAge:refreshTtl, path:"/", httpOnly:true, secure:true, sameSite:"None" })
   ];
+  // in clearAuthCookies()
+  function clearAuthCookies(){
+    return [
+      cookieSerialize("session","", { maxAge:0, path:"/", secure:true, sameSite:"None" }),
+      cookieSerialize("refresh","", { maxAge:0, path:"/", secure:true, sameSite:"None" })
+    ];
+  }
+  
   return { cookies };
 }
 
