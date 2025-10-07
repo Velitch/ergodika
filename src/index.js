@@ -1,14 +1,35 @@
-import { routeAuth } from "./auth.js";
-import { routeTracks } from "./tracks.js";
-import { routePayments } from "./payments.js";
+import {
+  routeAuth
+} from "./auth.js";
+import {
+  routeTracks
+} from "./tracks.js";
+import {
+  routePayments
+} from "./payments.js";
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (request.method === "GET" && url.pathname === "/") {
+      return cors(json({
+        ok: true,
+        service: "Ergodika API",
+        time: new Date().toISOString()
+      }), env, request);
+    }
+    if (request.method === "GET" && url.pathname === "/health") {
+      return cors(new Response("OK", {
+        status: 200
+      }), env, request);
+    }
+
     // Preflight CORS
     if (request.method === "OPTIONS") {
-      return cors(new Response(null, { status: 204 }), env, request);
+      return cors(new Response(null, {
+        status: 204
+      }), env, request);
     }
 
     try {
@@ -28,22 +49,29 @@ export default {
         if (r) return cors(r, env, request);
       }
 
-      return cors(new Response("Not found", { status: 404 }), env, request);
+      return cors(new Response("Not found", {
+        status: 404
+      }), env, request);
     } catch (e) {
-      return cors(json({ ok:false, error: e.message }, 500), env, request);
+      return cors(json({
+        ok: false,
+        error: e.message
+      }, 500), env, request);
     }
   }
 }
 
-export function json(data, status=200) {
+export function json(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8" }
+    headers: {
+      "content-type": "application/json; charset=utf-8"
+    }
   });
 }
 
 export function cors(res, env, request) {
-  const allowed = ["https://www.ergodika.it","https://ergodika.it"];
+  const allowed = ["https://www.ergodika.it", "https://ergodika.it"];
   const origin = request.headers.get("Origin");
   const okOrigin = allowed.includes(origin) ? origin : allowed[0];
   const headers = new Headers(res.headers);
@@ -53,5 +81,8 @@ export function cors(res, env, request) {
   headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
   headers.set("Access-Control-Max-Age", "86400");
   headers.set("Access-Control-Allow-Credentials", "true");
-  return new Response(res.body, { status: res.status, headers });
+  return new Response(res.body, {
+    status: res.status,
+    headers
+  });
 }
