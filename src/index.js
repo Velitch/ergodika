@@ -31,6 +31,11 @@ export default {
         status: 204
       }), env, request);
     }
+    // Health / Debug
+if (request.method === "GET" && url.pathname === "/api/debug-counters") {
+  return cors(await debugCounters(env), env, request);
+}
+
 
     try {
       // Auth
@@ -85,4 +90,14 @@ export function cors(res, env, request) {
   headers.set("Access-Control-Max-Age", "86400");
   headers.set("Access-Control-Allow-Credentials", "true");
   return new Response(res.body, { status: res.status, headers });
+}
+
+async function debugCounters(env) {
+  // Chiavi usate dal vecchio webhook (KV)
+  const keys = ["payments:count", "subs:paid"];
+  const out = {};
+  for (const k of keys) {
+    out[k] = await env.ERGODIKA.get(k) || "0";
+  }
+  return json({ ok: true, counters: out });
 }
