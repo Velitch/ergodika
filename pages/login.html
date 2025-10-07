@@ -5,6 +5,7 @@
 <title>Accedi — Ergodika</title>
 <link rel="stylesheet" href="/assets/css/brand.css">
 <link rel="stylesheet" href="/assets/css/auth.css">
+
 <body>
   <main class="wrap">
     <div class="hero">
@@ -12,22 +13,23 @@
       <p class="page-sub">Bentornato! Usa email o Google.</p>
       <form id="login-form" class="grid" style="gap:12px;max-width:520px">
         <div>
-          <label>Email</label>
-          <input name="email" type="email" required placeholder="nome@esempio.it" autocomplete="email">
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" required placeholder="nome@esempio.it" autocomplete="email">
         </div>
         <div>
-          <label>Password</label>
-          <input name="password" type="password" required placeholder="Password" autocomplete="current-password">
+          <label for="current-password">Password</label>
+          <input id="current-password" name="password" type="password" required placeholder="Password" autocomplete="current-password">
         </div>
         <div class="btn-row">
           <button class="btn" type="submit">Accedi</button>
           <button class="btn alt" type="button" id="google-btn">Accedi con Google</button>
           <a class="btn alt" href="/pages/signup.html">Crea account</a>
         </div>
-        <div id="msg" class="small"></div>
+        <div id="msg" class="small" aria-live="polite"></div>
       </form>
     </div>
   </main>
   <script src="/assets/js/auth.js?v=2"></script>
 </body>
+
 </html>
