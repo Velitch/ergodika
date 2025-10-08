@@ -6,17 +6,17 @@ compatibility_date = "2024-09-10"
 # Usiamo il dominio personalizzato (niente *.workers.dev)
 workers_dev = false
 
-# Route che collega il Worker all'host api.ergodika.it nella zona ergodika.it
+# Route che collega il Worker all'host www.ergodika.it/api nella zona ergodika.it
 routes = [
-  { pattern = "api.ergodika.it/*", zone_name = "ergodika.it" }
+  { pattern = "www.ergodika.it/api/*", zone_name = "ergodika.it" }
 ]
 
 # Variabili NON sensibili (ok in repo)
 [vars]
 SITE_URL = "https://www.ergodika.it"
-ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://api.ergodika.it"
+ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://www.ergodika.it/api"
 CONNECT_FEE_PERCENT = "20"
-GOOGLE_REDIRECT_URL = "https://api.ergodika.it/api/auth/google/callback"
+GOOGLE_REDIRECT_URL = "https://www.ergodika.it/api/auth/google/callback"
 # Chiave pubblicabile Stripe (NON è segreta, ok nel repo)
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
 

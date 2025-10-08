@@ -7,7 +7,7 @@
       const wb = (cfg?.stripe?.workerBase || "").replace(/\/$/, "");
       if (wb) return wb;
     } catch (e) {}
-    return "https://api.ergodika.it";
+    return "https://www.ergodika.it/api";
   }
 
   function absoluteRedirectFromQuery() {
