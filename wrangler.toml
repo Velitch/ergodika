@@ -1,30 +1,31 @@
+# wrangler.toml — Ergodika API (Cloudflare Worker)
 name = "ergodika-api"
 main = "src/index.js"
 compatibility_date = "2024-09-10"
+
+# Usiamo il dominio personalizzato (niente *.workers.dev)
 workers_dev = false
-preview_urls = false
+
+# Route che collega il Worker all'host api.ergodika.it nella zona ergodika.it
 routes = [
   { pattern = "api.ergodika.it/*", zone_name = "ergodika.it" }
 ]
 
-
+# Variabili NON sensibili (ok in repo)
 [vars]
 SITE_URL = "https://www.ergodika.it"
-# usa solo domini REALI qui:
 ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://api.ergodika.it"
 CONNECT_FEE_PERCENT = "20"
+GOOGLE_REDIRECT_URL = "https://api.ergodika.it/api/auth/google/callback"
+# Chiave pubblicabile Stripe (NON è segreta, ok nel repo)
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
 
-# FINCHÉ api.ergodika.it NON è attivo, usa il redirect su workers.dev:
-GOOGLE_REDIRECT_URL = "https://api.ergodika.it/api/auth/google/callback"
-# rimuovi lo spazio qui ↓↓↓
-STRIPE_PRICE_ID_ERGODIKA_MONTHLY_3 = "price_1SEy51RrORapViImXAr4Lmae"
-STRIPE_PRICE_ID_ERGODIKA_MONTHLY_7 = "price_1SF1AXRrORapViImBo1xdjvr"
-
+# KV: trasparenza/contatori & mapping artisti→account Connect
 [[kv_namespaces]]
 binding = "ERGODIKA"
 id = "5ea4fe53af054fe3933b52ca81b29566"
 
+# D1: database utenti/sessioni
 [[d1_databases]]
 binding = "DB"
 database_name = "ergodika"
