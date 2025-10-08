@@ -1,4 +1,4 @@
-const WORKER = "https://ergodika-api.ergodika.workers.dev";
+const WORKER = "https://api.ergodika.it";
 
 const test = async () => {
   const r = await fetch(`${WORKER}/api/checkout/one-time`, {

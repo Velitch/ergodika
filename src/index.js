@@ -71,18 +71,15 @@ export function json(data, status = 200) {
 }
 
 export function cors(res, env, request) {
-  const list = (env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
-  const allowed = list.length ? list : ["https://www.ergodika.it","https://ergodika.it"];
-
-  const origin = request.headers.get("Origin");
-  const okOrigin = allowed.includes(origin) ? origin : allowed[0];
-
-  const headers = new Headers(res.headers);
-  headers.set("Access-Control-Allow-Origin", okOrigin);
-  headers.set("Vary", "Origin");
-  headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  headers.set("Access-Control-Max-Age", "86400");
-  headers.set("Access-Control-Allow-Credentials", "true");
-  return new Response(res.body, { status: res.status, headers });
+  const allowed = (env.ALLOWED_ORIGINS || "").split(",").map(s=>s.trim()).filter(Boolean);
+  const reqOrigin = request?.headers?.get("Origin") || "";
+  const origin = allowed.includes(reqOrigin) ? reqOrigin : allowed[0] || "*";
+  const h = new Headers(res.headers);
+  h.set("Access-Control-Allow-Origin", origin);
+  h.set("Vary", "Origin");
+  h.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  h.set("Access-Control-Allow-Headers", "Content-Type,Authorization,Idempotency-Key");
+  h.set("Access-Control-Allow-Credentials", "true");
+  h.set("Access-Control-Max-Age", "86400");
+  return new Response(res.body, { status: res.status, headers: h });
 }

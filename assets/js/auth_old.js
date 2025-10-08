@@ -8,7 +8,7 @@
       if (wb) return wb;
     } catch(e){}
     // Fallback sicuro: aggiorna qui se usi un custom domain del Worker
-    return "https://ergodika-api.ergodika.workers.dev";
+    return "https://api.ergodika.it";
   }
   const $ = s => document.querySelector(s);
   const qs = new URLSearchParams(location.search);

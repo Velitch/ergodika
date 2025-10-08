@@ -2,13 +2,10 @@
   "stripe": {
     "publicKey": "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks",
     "workerBase": "https://api.ergodika.it",
-  },
-  "radio": {
-    "streamUrl": ""
-  }
-  "prices": {
-    "sub_basic": "price_1SFHlERrORapViImkvv8QTIG",
-    "sub_plus": "price_1SFHm3RrORapViImLz3JAX91",
-    "sub_premium": "price_1SFHmiRrORapViImqyv6U9SR",
+    "prices": {
+      "sub_basic": "price_1SFHlERrORapViImkvv8QTIG",
+      "sub_plus": "price_1SFHm3RrORapViImLz3JAX91",
+      "sub_premium": "price_1SFHmiRrORapViImqyv6U9SR"
+    }
   }
 }

@@ -9,7 +9,7 @@
     } catch (e) {
       return {
         stripe: {
-          workerBase: 'https://ergodika-api.ergodika.workers.dev'
+          workerBase: 'https://api.ergodika.it'
         }
       };
     }
