@@ -65,7 +65,7 @@
       try {
         const WORKER = await getWorkerBase();
         // Passo il redirect DENTRO lo state (il Worker lo rilegge in callback)
-        location.href = `${WORKER}/auth/google/start?redirect=${encodeURIComponent(redirect)}`;
+        location.href = `${WORKER}/api/auth/google/start?redirect=${encodeURIComponent(redirect)}`;
       } catch (e) {
         alert("Impossibile avviare Google OAuth. Controlla /config/app.json (workerBase).");
       }
@@ -80,4 +80,4 @@ const siteBase = location.origin; // es. https://www.ergodika.it
 const redirect = dest.startsWith("http") ? dest : siteBase + dest;
 
 // ...
-location.href = `${WORKER}/auth/google/start?redirect=${encodeURIComponent(redirect)}`;
+location.href = `${WORKER}/api/auth/google/start?redirect=${encodeURIComponent(redirect)}`;
