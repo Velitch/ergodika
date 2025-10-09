@@ -3,10 +3,13 @@ name = "ergodika-api"
 main = "src/index.js"
 compatibility_date = "2024-09-10"
 
-# Usiamo SOLO la route /api sotto www.ergodika.it (same-origin)
+# Same-origin API under www.ergodika.it
 workers_dev = false
 
+# IMPORTANT: add both the exact path and the wildcard,
+# because Cloudflare route '.../api/*' does NOT match '/api' without trailing slash.
 routes = [
+  { pattern = "www.ergodika.it/api", zone_name = "ergodika.it" },
   { pattern = "www.ergodika.it/api/*", zone_name = "ergodika.it" }
 ]
 
@@ -15,7 +18,7 @@ SITE_URL = "https://www.ergodika.it"
 ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it"
 CONNECT_FEE_PERCENT = "20"
 GOOGLE_REDIRECT_URL = "https://www.ergodika.it/api/auth/google/callback"
-# Chiave pubblicabile Stripe (NON è segreta, ok nel repo)
+# Public Stripe key (safe in repo)
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
 
 [[kv_namespaces]]
