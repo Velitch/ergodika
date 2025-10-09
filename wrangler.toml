@@ -8,7 +8,7 @@ workers_dev = false
 
 # Route che collega il Worker all'host www.ergodika.it/api nella zona ergodika.it
 routes = [
-  { pattern = "www.ergodika.it*", zone_name = "ergodika.it" }
+  { pattern = "www.ergodika.it/*", zone_name = "ergodika.it" }
 ]
 
 # Variabili NON sensibili (ok in repo)
