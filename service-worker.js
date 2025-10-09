@@ -13,6 +13,8 @@ const ASSETS = [
   '/', '/index.html',
   '/assets/css/style.css',
   '/assets/js/app.js',
+  '/assets/js/pwa-install.js',
+  '/assets/js/brand.js',
 
   // Pagine
   '/pages/manifesto.html',
