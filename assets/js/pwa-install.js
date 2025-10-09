@@ -12,31 +12,33 @@
     if (document.getElementById('pwa-install-bar')) return;
     const bar = document.createElement('div');
     bar.id = 'pwa-install-bar';
+    bar.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:16px;display:flex;align-items:center;gap:10px;background:#0b1f2a;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 12px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.36);opacity:1;";
     bar.innerHTML = `
       <div style="flex:1">
-        <div class="title">Installa Ergodika</div>
-        <div class="hint" id="pwa-hint">Aggiungila alla schermata Home per un’esperienza migliore.</div>
+        <div class="title" style="font-weight:800">Installa Ergodika</div>
+        <div class="hint" id="pwa-hint" style="opacity:.85;font-size:.9rem">Aggiungila alla schermata Home per un’esperienza migliore.</div>
       </div>
-      <button id="pwa-install-btn">Installa</button>
-      <button id="pwa-dismiss" class="ghost" aria-label="Chiudi">✕</button>
+      <button id="pwa-install-btn" style="appearance:none;border:none;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:700;background:#2563eb;color:#fff">Installa</button>
+      <button id="pwa-dismiss" class="ghost" aria-label="Chiudi" style="appearance:none;border:none;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:700;background:transparent;color:#fff;opacity:.8">✕</button>
     `;
     document.body.appendChild(bar);
 
     document.getElementById('pwa-dismiss').addEventListener('click', () => {
-      bar.classList.remove('show');
+      bar.remove();
       localStorage.setItem('pwa:dismissed', '1');
     });
 
     document.getElementById('pwa-install-btn').addEventListener('click', () => installAction());
   }
+
   function showBar() {
     if (localStorage.getItem('pwa:dismissed') === '1') return;
     ensureBar();
-    const bar = document.getElementById('pwa-install-bar');
-    bar.classList.add('show');
     if (isIOS) {
-      document.getElementById('pwa-hint').textContent = "Su iPhone: Condividi → Aggiungi alla schermata Home";
-      document.getElementById('pwa-install-btn').textContent = "Come si fa";
+      const hint = document.getElementById('pwa-hint');
+      const btn = document.getElementById('pwa-install-btn');
+      if (hint) hint.textContent = "Su iPhone: Condividi → Aggiungi alla schermata Home";
+      if (btn) btn.textContent = "Come si fa";
     }
   }
 
@@ -57,11 +59,11 @@
     // Android/Desktop: prompt disponibile
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
+      try { await deferredPrompt.userChoice; } catch {}
       deferredPrompt = null;
       localStorage.setItem('pwa:dismissed', '1');
       const bar = document.getElementById('pwa-install-bar');
-      if (bar) bar.classList.remove('show');
+      if (bar) bar.remove();
       return;
     }
     // iOS: mostra istruzioni
@@ -95,7 +97,7 @@
     localStorage.removeItem('pwa:dismissed');
     hideTriggers();
     const bar = document.getElementById('pwa-install-bar');
-    if (bar) bar.classList.remove('show');
+    if (bar) bar.remove();
   });
 
   window.addEventListener('load', () => {
@@ -143,9 +145,10 @@
             document.body.appendChild(t);
             setTimeout(() => { t.remove(); location.reload(); }, 800);
           });
-        });
+        })
+        .catch(() => {});
     }
-
+  });
 
   // Esponi una piccola API globale (se vuoi richiamarla da altri script)
   window.ErgodikaPWA = {
