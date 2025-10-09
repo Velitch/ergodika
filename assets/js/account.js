@@ -1,153 +1,61 @@
-(function() {
-  async function getConfig() {
+// assets/js/account.js — fix base API to avoid /api/api/*
+// We assume same-origin Worker mounted under /api.
+// If you changed it, update workerBase in config/app.json or here.
+
+(function(){
+  const cfg = window.__ERGODIKA || {};
+  const workerBase = (cfg.workerBase || '/api').replace(/\/$/, ''); // '/api' (no trailing slash)
+
+  // helper to safely join paths without // or missing /
+  const api = (p) => workerBase + '/' + String(p || '').replace(/^\//, '');
+
+  async function getJSON(url, opts = {}) {
+    const r = await fetch(url, { credentials: 'include', ...opts });
+    const ct = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Unexpected content-type: ' + ct);
+    const j = await r.json();
+    if (!r.ok || j.ok === false) throw new Error(j.error || 'Request failed');
+    return j;
+  }
+
+  // UI elements
+  const elStatus = document.querySelector('[data-auth-status]');
+  const elEmail  = document.querySelector('[data-auth-email]');
+  const elAvatar = document.querySelector('[data-auth-avatar]');
+  const btnLogout = document.querySelector('[data-auth-logout]');
+
+  async function refreshMe(){
     try {
-      const r = await fetch('/config/app.json', {
-        cache: 'no-cache'
-      });
-      if (!r.ok) throw 0;
-      return await r.json();
-    } catch (e) {
-      return {
-        stripe: {
-          workerBase: '/api'
+      const me = await getJSON(api('/auth/me'));
+      if (me.user) {
+        if (elStatus) elStatus.textContent = 'Accesso effettuato';
+        if (elEmail)  elEmail.textContent = me.user.email || '(senza email)';
+        if (elAvatar && me.user.picture) {
+          elAvatar.src = me.user.picture;
+          elAvatar.hidden = false;
         }
-      };
+        if (btnLogout) btnLogout.hidden = false;
+      } else {
+        if (elStatus) elStatus.textContent = 'Non risulti autenticato';
+        if (btnLogout) btnLogout.hidden = true;
+      }
+    } catch (e) {
+      console.error('auth/me error:', e);
+      if (elStatus) elStatus.textContent = 'Errore nel recupero profilo';
     }
   }
-  async function api(path, opt = {}) {
-    const cfg = await getConfig();
-    const base = (cfg?.stripe?.workerBase || '').replace(/\/$/, '');
-    const res = await fetch(base + path, {
-      credentials: 'include',
-      ...opt
-    });
+
+  async function doLogout(){
     try {
-      return await res.json();
-    } catch {
-      return null;
+      await getJSON(api('/logout'), { method: 'POST' });
+      location.reload();
+    } catch (e) {
+      alert('Errore durante il logout');
     }
   }
 
-  function el(tag, attrs = {}, children = []) {
-    const n = document.createElement(tag);
-    Object.entries(attrs).forEach(([k, v]) => {
-      if (k === 'class') n.className = v;
-      else if (k === 'html') n.innerHTML = v;
-      else n.setAttribute(k, v);
-    });
-    (Array.isArray(children) ? children : [children]).filter(Boolean).forEach(c => {
-      n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
-    });
-    return n;
-  }
+  if (btnLogout) btnLogout.addEventListener('click', doLogout);
 
-  async function renderCta(user) {
-    const host = document.getElementById('account-cta');
-    if (!host) return;
-    host.innerHTML = '';
-    if (user) {
-      host.appendChild(el('span', {
-        class: 'account-chip'
-      }, [
-        el('span', {
-          class: 'badge'
-        }, 'Logged in'),
-        el('span', {}, user.email || 'utente')
-      ]));
-      const menu = el('div', {
-        class: 'account-menu'
-      }, [
-        el('a', {
-          href: '/pages/account.html'
-        }, 'Profilo'),
-        el('a', {
-          href: '#',
-          id: 'cta-logout'
-        }, 'Esci')
-      ]);
-      host.appendChild(menu);
-      menu.querySelector('#cta-logout').addEventListener('click', async (e) => {
-        e.preventDefault();
-        await api('/api/auth/logout', {
-          method: 'POST'
-        });
-        location.reload();
-      });
-    } else {
-      const menu = el('div', {
-        class: 'account-menu'
-      }, [
-        el('a', {
-          href: '/pages/login.html?redirect=/pages/account.html'
-        }, 'Accedi'),
-        el('a', {
-          href: '/pages/signup.html?redirect=/pages/account.html'
-        }, 'Registrati')
-
-      ]);
-      host.appendChild(menu);
-    }
-  }
-
-  async function renderAccountCard() {
-    const card = document.getElementById('account-card');
-    const actions = document.getElementById('actions');
-    const me = await api('/api/auth/me');
-    await renderCta(me?.user);
-    if (!me?.ok || !me.user) {
-      card.innerHTML = '<p>Non risulti autenticato. <a href="/pages/login.html">Accedi</a> o <a href="/pages/signup.html">crea un account</a>.</p>';
-      actions.style.display = 'none';
-      return;
-    }
-    const u = me.user;
-    const googleLinked = !!u.google_sub;
-    card.innerHTML = '';
-    card.appendChild(el('div', {}, [
-      el('div', {
-        class: 'kv'
-      }, [
-        el('div', {
-          class: 'k'
-        }, 'Email'),
-        el('div', {
-          class: 'v'
-        }, u.email || '-'),
-        el('div', {
-          class: 'k'
-        }, 'Ruoli'),
-        el('div', {
-          class: 'v'
-        }, Array.isArray(u.roles) ? u.roles.join(', ') : String(u.roles || '-')),
-        el('div', {
-          class: 'k'
-        }, 'Google'),
-        el('div', {
-          class: 'v'
-        }, googleLinked ? 'Collegato ✓' : 'Non collegato'),
-        el('div', {
-          class: 'k'
-        }, 'Creato il'),
-        el('div', {
-          class: 'v'
-        }, u.created_at ? new Date(u.created_at).toLocaleString() : '-')
-      ]),
-      el('p', {
-        class: 'small',
-        style: 'margin-top:12px;opacity:.8'
-      }, 'Questa è la tua scheda profilo base. A breve qui potrai collegare il profilo artista, gestire abbonamenti e privacy.')
-    ]));
-    actions.style.display = '';
-    document.getElementById('btn-logout')?.addEventListener('click', async () => {
-      await api('/api/auth/logout', {
-        method: 'POST'
-      });
-      location.href = '/';
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderAccountCard);
-  } else {
-    renderAccountCard();
-  }
+  // kick
+  refreshMe();
 })();
