@@ -169,7 +169,7 @@ export async function routeAuth(request, url, env){
     return await authRefresh(request, env);
   }
 
-  if (request.method==="GET" && path==="api/auth/google/start") {
+  if (request.method==="GET" && path==="/api/auth/google/start") {
     return await googleStart(url, env);
   }
   if (request.method==="GET" && path==="/api/auth/google/callback") {
