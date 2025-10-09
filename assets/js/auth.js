@@ -31,7 +31,7 @@
         try {
           const fd = new FormData(signup);
           const payload = Object.fromEntries(fd.entries());
-          const res = await fetch(`${WORKER}/auth/register`, {
+          const res = await fetch(`${WORKER}/api/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -56,7 +56,7 @@
         try {
           const fd = new FormData(login);
           const payload = Object.fromEntries(fd.entries());
-          const res = await fetch(`${WORKER}/auth/login`, {
+          const res = await fetch(`${WORKER}/api/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -78,7 +78,7 @@
       gbtn.addEventListener("click", () => {
         try {
           console.log("[Google] using workerBase:", WORKER, "redirect:", redirect);
-          location.href = `${WORKER}/auth/google/start?redirect=${encodeURIComponent(redirect)}`;
+          location.href = `${WORKER}/api/auth/google/start?redirect=${encodeURIComponent(redirect)}`;
         } catch (e) {
           console.error("[Google OAuth click] error:", e);
           alert("Errore avvio Google OAuth. Controlla /config/app.json.");
