@@ -11,6 +11,8 @@ import {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const maybeAuth = await routeAuth(request, url, env);
+    if (maybeAuth) return cors(maybeAuth, env, request);
 
     if (request.method === "GET" && url.pathname === "/") {
       return cors(json({
@@ -31,6 +33,19 @@ export default {
         status: 204
       }), env, request);
     }
+
+    // (opzionale) health:
+    if (request.method === "GET" && (path === "/api" || path === "/api/")) {
+      return cors(new Response(JSON.stringify({
+        ok: true,
+        service: "Ergodika API"
+      }), {
+        headers: {
+          "content-type": "application/json"
+        }
+      }), env, request);
+    }
+
 
     try {
       // Auth
@@ -71,7 +86,7 @@ export function json(data, status = 200) {
 }
 
 export function cors(res, env, request) {
-  const allowed = (env.ALLOWED_ORIGINS || "").split(",").map(s=>s.trim()).filter(Boolean);
+  const allowed = (env.ALLOWED_ORIGINS || "https://www.ergodika.it,https://ergodika.it").split(",").map(s => s.trim()).filter(Boolean);
   const reqOrigin = request?.headers?.get("Origin") || "";
   const origin = allowed.includes(reqOrigin) ? reqOrigin : allowed[0] || "*";
   const h = new Headers(res.headers);
@@ -81,5 +96,8 @@ export function cors(res, env, request) {
   h.set("Access-Control-Allow-Headers", "Content-Type,Authorization,Idempotency-Key");
   h.set("Access-Control-Allow-Credentials", "true");
   h.set("Access-Control-Max-Age", "86400");
-  return new Response(res.body, { status: res.status, headers: h });
+  return new Response(res.body, {
+    status: res.status,
+    headers: h
+  });
 }
