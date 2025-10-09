@@ -10,9 +10,9 @@ import {
 
 export default {
   async fetch(request, env) {
-    const url = new URL(request.url);
     const maybeAuth = await routeAuth(request, url, env);
     if (maybeAuth) return cors(maybeAuth, env, request);
+    const url = new URL(request.url);
 
     if (request.method === "GET" && url.pathname === "/") {
       return cors(json({

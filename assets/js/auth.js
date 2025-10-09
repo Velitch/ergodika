@@ -1,12 +1,12 @@
 // src/auth.js — Google OAuth (same-origin /api/*) + sessioni in KV
 
+/* Helpers base */
 function json(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
     headers: { "content-type": "application/json; charset=utf-8" },
   });
 }
-
 function buildCookie(name, value, { maxAge = 60 * 60 * 24 * 30 } = {}) {
   return [
     `${name}=${value}`,
@@ -34,7 +34,6 @@ function rid(len = 24) {
   crypto.getRandomValues(a);
   return [...a].map(b => (b % 16).toString(16)).join("");
 }
-
 async function kvSet(env, key, val, ttlSec) {
   await env.ERGODIKA.put(key, typeof val === "string" ? val : JSON.stringify(val), {
     expirationTtl: ttlSec,
@@ -52,19 +51,20 @@ async function kvDel(env, key) {
  * HANDLERS
  * ========================= */
 
+// 1) Avvio OAuth → redirect a Google
 async function handleStart(request, url, env) {
   const redirect = url.searchParams.get("redirect") || "/pages/account.html";
   const nonce = rid(12);
 
-  // salviamo il nonce in un cookie temporaneo per validare lo state
-  const oauthCookie = buildCookie("erg_oauth", nonce, { maxAge: 600 }); // 10 minuti
+  // cookie breve per validare lo state al callback
+  const oauthCookie = buildCookie("erg_oauth", nonce, { maxAge: 600 }); // 10 min
 
   // state = base64({ r: redirect, n: nonce })
   const state = btoa(JSON.stringify({ r: redirect, n: nonce }));
 
   const params = new URLSearchParams({
     client_id: env.GOOGLE_CLIENT_ID,
-    redirect_uri: env.GOOGLE_REDIRECT_URL,
+    redirect_uri: env.GOOGLE_REDIRECT_URL, // es: https://www.ergodika.it/api/auth/google/callback
     response_type: "code",
     scope: "openid email profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
     access_type: "online",
@@ -84,6 +84,7 @@ async function handleStart(request, url, env) {
   });
 }
 
+// 2) Callback OAuth → crea/aggiorna utente + sessione, poi redirect
 async function handleCallback(request, url, env) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
@@ -127,37 +128,40 @@ async function handleCallback(request, url, env) {
     return json({ ok: false, error: "Userinfo failed" }, 400);
   }
 
-  // costruisci/aggiorna utente (qui demo = solo KV; se usi D1, sostituisci)
+  // salva/aggiorna utente in KV (se usi D1, sostituisci qui)
   const userId = ("u_" + ui.sub).slice(0, 24);
+  const now = new Date().toISOString();
   const user = {
     id: userId,
     email: ui.email || null,
     google_sub: ui.sub,
     roles: ["user"],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    created_at: now,
+    updated_at: now,
     name: ui.name || null,
     picture: ui.picture || null,
   };
   await kvSet(env, `user:${user.id}`, user, 60 * 60 * 24 * 365);
 
-  // sessione
+  // sessione + pulizia cookie oauth
   const sid = "s_" + rid(16);
   await kvSet(env, `sess:${sid}`, { userId: user.id }, 60 * 60 * 24 * 30); // 30 giorni
   const sessionCookie = buildCookie("erg_sess", sid, { maxAge: 60 * 60 * 24 * 30 });
   const clearOauth = clearCookie("erg_oauth");
 
-  // redirect alla destinazione richiesta
+  // destinazione finale
   const dest = (wanted.r && wanted.r.startsWith("/")) ? wanted.r : "/pages/account.html";
-  return new Response(null, {
-    status: 302,
-    headers: {
-      "Set-Cookie": `${sessionCookie}\n${clearOauth}`,
-      "Location": `https://www.ergodika.it${dest}`,
-    },
-  });
+
+  // Set-Cookie multipli → Headers.append
+  const headers = new Headers();
+  headers.set("Location", `https://www.ergodika.it${dest}`);
+  headers.append("Set-Cookie", sessionCookie);
+  headers.append("Set-Cookie", clearOauth);
+
+  return new Response(null, { status: 302, headers });
 }
 
+// 3) Stato sessione
 async function handleMe(request, env) {
   const cookies = parseCookies(request);
   const sid = cookies["erg_sess"];
@@ -170,6 +174,7 @@ async function handleMe(request, env) {
   return json({ ok: true, user: user || null });
 }
 
+// 4) Logout
 async function handleLogout(request, env) {
   const cookies = parseCookies(request);
   const sid = cookies["erg_sess"];
@@ -184,9 +189,9 @@ async function handleLogout(request, env) {
 }
 
 /* =========================
- * ROUTER
+ * ROUTER (export)
  * ========================= */
-async function routeAuth(request, url, env) {
+export async function routeAuth(request, url, env) {
   const p = url.pathname;
 
   if (request.method === "GET" && p === "/api/auth/google/start") {
