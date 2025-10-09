@@ -186,7 +186,7 @@ async function handleLogout(request, env) {
 /* =========================
  * ROUTER
  * ========================= */
-export async function routeAuth(request, url, env) {
+async function routeAuth(request, url, env) {
   const p = url.pathname;
 
   if (request.method === "GET" && p === "/api/auth/google/start") {
