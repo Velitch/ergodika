@@ -8,13 +8,13 @@ workers_dev = false
 
 # Route che collega il Worker all'host www.ergodika.it/api nella zona ergodika.it
 routes = [
-  { pattern = "*.ergodika.it/api/*", zone_name = "ergodika.it" }
+  { pattern = "www.ergodika.it/api/*", zone_name = "ergodika.it" }
 ]
 
 # Variabili NON sensibili (ok in repo)
 [vars]
 SITE_URL = "https://www.ergodika.it"
-ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it,https://www.ergodika.it/api"
+ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it"
 CONNECT_FEE_PERCENT = "20"
 GOOGLE_REDIRECT_URL = "https://www.ergodika.it/api/auth/google/callback"
 # Chiave pubblicabile Stripe (NON è segreta, ok nel repo)
