@@ -145,7 +145,7 @@
 
     async function getCounters() {
       try {
-        const res = await fetch(WORKER_BASE + "/api/debug-counters", {
+        const res = await fetch(WORKER_BASE + "/debug-counters", {
           cache: "no-store"
         });
         const data = await res.json();
@@ -159,7 +159,7 @@
 
     async function donate(amount) {
       try {
-        const res = await fetch(WORKER_BASE + "/api/checkout/one-time", {
+        const res = await fetch(WORKER_BASE + "/checkout/one-time", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -182,7 +182,7 @@
       // imposta qui il tuo priceId da Stripe
       const priceId = "price_1SEy51RrORapViImXAr4Lmae";
       try {
-        const res = await fetch(WORKER_BASE + "/api/checkout/subscription", {
+        const res = await fetch(WORKER_BASE + "/checkout/subscription", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
