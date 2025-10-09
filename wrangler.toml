@@ -4,7 +4,7 @@ main = "src/index.js"
 compatibility_date = "2024-09-10"
 
 # Same-origin API under www.ergodika.it
-workers_dev = false
+workers_dev = true
 
 # IMPORTANT: add both the exact path and the wildcard,
 # because Cloudflare route '.../api/*' does NOT match '/api' without trailing slash.

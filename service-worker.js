@@ -1,49 +1,44 @@
-/* === Ergodika Service Worker ===
+/* === Ergodika Service Worker (clean) ===
  * - Precache asset essenziali
  * - Bypass API/Stripe/Workers
- * - Cache-first asset statici
  * - Network-first per HTML e /config/app.json
+ * - Stale-while-revalidate per asset statici
  * - Cleanup cache vecchie + attivazione immediata
  */
 
-const CACHE = 'ergodika-v5';
+const CACHE = 'ergodika-v6';
 
-/** Asset essenziali da avere sempre offline */
+/** Asset essenziali da avere sempre offline (solo se realmente esistono) */
 const ASSETS = [
   '/', '/index.html',
+  // CSS / JS base
   '/assets/css/style.css',
   '/assets/js/app.js',
   '/assets/js/pwa-install.js',
-  '/assets/js/brand.js',
 
-  // Pagine
+  // Pagine principali
   '/pages/manifesto.html',
   '/pages/radio.html',
   '/pages/members.html',
   '/pages/artist-onboarding.html',
   '/pages/thank-you.html',
 
-  // Config e PWA
+  // Config & PWA
   '/config/app.json',
   '/manifest.json',
   '/assets/images/icon-192.png',
   '/assets/images/icon-512.png',
-  '/assets/images/icon-512-maskable..png',
 
-
-  // Nuovi file introdotti (se presenti)
+  // Moduli (se presenti)
   '/assets/js/payments.js',
   '/assets/js/members.js',
-  '/assets/css/members.css'
-  '/assets/css/pwa-install.css',
-  '/assets/js/pwa-install.js',
-  '/manifest.json'
+  '/assets/css/members.css',
 ];
 
 /** Host/percorsi da NON intercettare */
 const BYPASS_HOST_TESTS = [
-  // API del tuo dominio
-  (url) => url.pathname.startsWith('/api/'),
+  // API del tuo dominio (copri sia /api che /api/...)
+  (url) => url.pathname === '/api' || url.pathname.startsWith('/api/'),
 
   // Worker backend (qualsiasi sottodominio .workers.dev)
   (url) => url.hostname.endsWith('.workers.dev'),
@@ -61,8 +56,7 @@ const isHtml = (req) =>
   req.destination === 'document' ||
   (req.headers && req.headers.get('accept')?.includes('text/html'));
 
-const isAssetRequest = (url) =>
-  ASSETS.includes(url.pathname);
+const isAssetRequest = (url) => ASSETS.includes(url.pathname);
 
 const isStaticExt = (url) =>
   /\.(?:css|js|mjs|json|png|jpg|jpeg|gif|svg|webp|ico|woff2?)$/i.test(url.pathname);
@@ -70,17 +64,20 @@ const isStaticExt = (url) =>
 const shouldBypass = (req, url) =>
   req.method !== 'GET' || BYPASS_HOST_TESTS.some(fn => fn(url));
 
-/** Install: precache degli asset critici */
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    await cache.addAll(ASSETS);
-    // Attiva subito la nuova versione
-    await self.skipWaiting();
+    try {
+      const cache = await caches.open(CACHE);
+      await cache.addAll(ASSETS);
+    } catch (e) {
+      // ignora asset mancanti: non bloccare l'install
+      console.warn('[SW] precache warn:', e && e.message);
+    } finally {
+      await self.skipWaiting();
+    }
   })());
 });
 
-/** Activate: cleanup cache vecchie + claim */
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
@@ -89,14 +86,13 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-/** Fetch: strategie diverse a seconda della richiesta */
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // 1) BYPASS: API/Workers/Stripe e tutte le non-GET passano dritte alla rete
   if (shouldBypass(event.request, url)) return; // niente respondWith → pass-through
 
-  // 2) Network-first per HTML e per /config/app.json (così recepisci subito aggiornamenti)
+  // 2) Network-first per HTML e per /config/app.json (recepisci subito aggiornamenti)
   if (isHtml(event.request) || url.pathname === '/config/app.json') {
     event.respondWith(networkFirst(event.request));
     return;
@@ -120,17 +116,6 @@ self.addEventListener('fetch', (event) => {
 
 /* === Strategie di cache === */
 
-async function cacheFirst(request) {
-  const cache = await caches.open(CACHE);
-  const cached = await cache.match(request, {
-    ignoreSearch: true
-  });
-  if (cached) return cached;
-  const fresh = await fetch(request);
-  if (fresh.ok) cache.put(request, fresh.clone());
-  return fresh;
-}
-
 async function networkFirst(request) {
   const cache = await caches.open(CACHE);
   try {
@@ -138,9 +123,7 @@ async function networkFirst(request) {
     if (fresh && fresh.ok) cache.put(request, fresh.clone());
     return fresh;
   } catch {
-    const cached = await cache.match(request, {
-      ignoreSearch: true
-    });
+    const cached = await cache.match(request, { ignoreSearch: true });
     if (cached) return cached;
 
     // Fallback di navigazione: prova l’index offline
@@ -155,9 +138,7 @@ async function networkFirst(request) {
 
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE);
-  const cached = await cache.match(request, {
-    ignoreSearch: true
-  });
+  const cached = await cache.match(request, { ignoreSearch: true });
   const fetchPromise = fetch(request).then((fresh) => {
     if (fresh && fresh.ok) cache.put(request, fresh.clone());
     return fresh;
