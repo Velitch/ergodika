@@ -1,12 +1,20 @@
 (function () {
+  const PAGE_HOST = typeof window !== 'undefined'
+    ? String(window.location.hostname || '').toLowerCase()
+    : '';
+  const LIKELY_LOCAL_HOST = !PAGE_HOST
+    || PAGE_HOST === 'localhost'
+    || PAGE_HOST === '127.0.0.1'
+    || PAGE_HOST === '0.0.0.0'
+    || PAGE_HOST.endsWith('.local');
+
   const DEFAULT_WORKER_BASE = (() => {
     if (typeof window === 'undefined') return '/api';
-    const host = String(window.location.hostname || '').toLowerCase();
-    if (!host) return '/api';
-    if (host === 'www.ergodika.it' || host === 'ergodika.it') {
+    if (LIKELY_LOCAL_HOST) return '/api';
+    if (PAGE_HOST === 'www.ergodika.it' || PAGE_HOST === 'ergodika.it') {
       return 'https://api.ergodika.it/api';
     }
-    if (host.endsWith('.ergodika.it') && host !== 'api.ergodika.it') {
+    if (PAGE_HOST.endsWith('.ergodika.it') && PAGE_HOST !== 'api.ergodika.it') {
       return 'https://api.ergodika.it/api';
     }
     return '/api';
@@ -25,8 +33,12 @@
       const cfg = await res.json();
       const stripe = cfg?.stripe || {};
       STATE.config = cfg;
-      STATE.workerBase = String(stripe.workerBase || cfg.workerBase || DEFAULT_WORKER_BASE)
+      const configuredBase = String(stripe.workerBase || cfg.workerBase || DEFAULT_WORKER_BASE)
         .replace(/\/$/, '') || DEFAULT_WORKER_BASE;
+      const shouldFallbackToDefault = LIKELY_LOCAL_HOST
+        && /^https?:/i.test(configuredBase)
+        && DEFAULT_WORKER_BASE.startsWith('/');
+      STATE.workerBase = shouldFallbackToDefault ? DEFAULT_WORKER_BASE : configuredBase;
       STATE.prices = stripe.prices || {};
     } catch (err) {
       console.warn('[ErgodikaPayments] Config load failed:', err && err.message);
