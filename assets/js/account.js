@@ -6,7 +6,7 @@
   const ABSOLUTE_RE = /^https?:\/\//i;
   const cfgPromise = (window.__ERGODIKA_READY || Promise.resolve(window.__ERGODIKA || {}))
     .catch(() => ({}));
-  const remoteFallback = 'https://www.ergodika.it/api';
+  const remoteFallback = 'https://api.ergodika.it/api';
   let workerBase = '/api';
 
   function ensureErgodikaObject() {
