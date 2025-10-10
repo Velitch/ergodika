@@ -80,3 +80,11 @@ export function toast(msg){
   const n = document.createElement('div'); n.className='badge'; n.textContent = msg; host.appendChild(n);
   setTimeout(()=>n.remove(), 3000);
 }
+
+
+/* SW Registration */
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}

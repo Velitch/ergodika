@@ -99,11 +99,19 @@
             <h3>Bottoni</h3>
             <div class="row"><a class="btn primary">Primario</a><a class="btn">Default</a><a class="btn ghost">Ghost</a><a class="btn small">Small</a></div>
           </article>
+        
         </div>
-      </div>
-    </section>
+      </article>
+      <article class="card">
+        <h3>Installa l'app</h3>
+        <div id="pwa-install" data-mode="card"></div>
+      </article>
+    </div>
+  </div>
+</section>
 
-    <section id="contatti" class="section compact">
+<section id="contatti"
+ class="section compact">
       <div class="container grid cols-2">
         <div class="card">
           <h3>Contatti</h3>
@@ -136,5 +144,12 @@
     attachMiniViz(document.getElementById('viz1'));
     initMap('map-host',{lat:41.9,lng:12.5,zoom:12});
   </script>
+
+<script type="module">
+  import { mountPWAInstall } from './js/pwa-install.js';
+  // auto-mount if container exists
+  document.querySelectorAll('#pwa-install').forEach(el => mountPWAInstall(el));
+</script>
 </body>
+
 </html>

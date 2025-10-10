@@ -49,11 +49,30 @@
         </aside>
       </div>
     </section>
-  </main>
+  
+  <section class="section">
+    <div class="container">
+      <div class="grid cols-2">
+        <article class="card">
+          <h3>Installa l'app</h3>
+          <div id="pwa-install" data-mode="card"></div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
   <footer class="footer">
     <div class="container">© <span id="year"></span> Ergodika</div>
     <script>document.getElementById('year').textContent=new Date().getFullYear()</script>
   </footer>
   <script type="module">import { attachMiniViz } from './js/app.js'; attachMiniViz(document.getElementById('viz2'));</script>
+
+<script type="module">
+  import { mountPWAInstall } from './js/pwa-install.js';
+  // auto-mount if container exists
+  document.querySelectorAll('#pwa-install').forEach(el => mountPWAInstall(el));
+</script>
 </body>
+
 </html>
