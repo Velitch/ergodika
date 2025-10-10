@@ -60,6 +60,10 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
     }
 
+    .stats.stats--offline {
+      opacity: 0.7;
+    }
+
     .stats h3 {
       margin-bottom: .8rem;
       color: var(--col-primary);
@@ -70,6 +74,16 @@
       justify-content: space-between;
       margin: .4rem 0;
       font-weight: 500;
+    }
+
+    .stats-status {
+      margin-top: 1rem;
+      font-size: .9rem;
+      color: var(--col-subtle);
+    }
+
+    .stats--offline .stats-status {
+      color: #c0392b;
     }
 
     button {
@@ -125,6 +139,7 @@
       <span>Ultimo aggiornamento</span>
       <span id="counter-last">–</span>
     </div>
+    <p class="stats-status" id="counter-status">Aggiornamento in corso…</p>
   </section>
 
   <section>
@@ -140,8 +155,22 @@
 
   <script src="/assets/js/payments.js"></script>
   <script>
-    const FALLBACK_WORKER_BASE = "/api";
+    const DEFAULT_WORKER_BASE = (() => {
+      const host = String(window.location.hostname || "").toLowerCase();
+      if (!host) return "/api";
+      if (host === "www.ergodika.it" || host === "ergodika.it") {
+        return "https://api.ergodika.it/api";
+      }
+      if (host.endsWith(".ergodika.it") && host !== "api.ergodika.it") {
+        return "https://api.ergodika.it/api";
+      }
+      return "/api";
+    })();
+
+    const FALLBACK_WORKER_BASE = DEFAULT_WORKER_BASE;
     let workerBasePromise = null;
+    let countersTimer = null;
+    let countersDisabled = false;
 
     async function resolveWorkerBase() {
       if (!workerBasePromise) {
@@ -177,20 +206,51 @@
       return workerBasePromise;
     }
 
+    function disableCounters(reason) {
+      if (countersDisabled) return;
+      countersDisabled = true;
+      if (countersTimer) {
+        clearInterval(countersTimer);
+        countersTimer = null;
+      }
+      const statsBox = document.querySelector(".stats");
+      if (statsBox) statsBox.classList.add("stats--offline");
+      const statusEl = document.getElementById("counter-status");
+      if (statusEl) statusEl.textContent = reason || "Contatori non disponibili in questo ambiente.";
+    }
+
     async function getCounters() {
+      const statusEl = document.getElementById("counter-status");
+      if (statusEl && !countersDisabled) {
+        statusEl.textContent = "Aggiornamento in corso…";
+      }
       try {
         const WORKER_BASE = await resolveWorkerBase();
         const res = await fetch(WORKER_BASE + "/debug-counters", {
           cache: "no-store"
         });
+        if (res.status === 404) {
+          console.info("[Manifesto] Contatori non disponibili (404). Disabilito aggiornamenti.");
+          disableCounters("Contatori non disponibili in questo ambiente.");
+          return;
+        }
         if (!res.ok) {
-          throw new Error("HTTP " + res.status);
+          const error = new Error("HTTP " + res.status);
+          error.status = res.status;
+          throw error;
         }
         const data = await res.json();
         document.getElementById("counter-donations").textContent = data["payments:count"] || "0";
         document.getElementById("counter-subs").textContent = data["subs:paid"] || "0";
         document.getElementById("counter-last").textContent = new Date().toLocaleTimeString();
+        if (statusEl) {
+          statusEl.textContent = "Aggiornato alle " + new Date().toLocaleTimeString();
+        }
       } catch (e) {
+        if (countersDisabled) return;
+        if (statusEl) {
+          statusEl.textContent = "Aggiornamento non riuscito. Riprovo tra poco.";
+        }
         console.warn("Counters fetch failed", e);
       }
     }
@@ -247,8 +307,10 @@
     }
 
     window.addEventListener("load", () => {
-      getCounters();
-      setInterval(getCounters, 20000);
+      void getCounters();
+      countersTimer = setInterval(() => {
+        if (!countersDisabled) void getCounters();
+      }, 20000);
     });
   </script>
 </body>
