@@ -1,8 +1,7 @@
 <!doctype html>
 <html lang="it" data-theme="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ergodika — Dual Theme Starter</title>
   <meta name="description" content="Starter responsive con temi dark/light per Ergodika.">
   <link rel="manifest" href="manifest.webmanifest">
@@ -24,7 +23,14 @@
 
   <main id="contenuto">
     <section class="hero dark-bg">
-      <div class="dark-branches" aria-hidden="true"><img src="assets/branches.png" alt=""></div>
+      <div class="dark-branches" aria-hidden="true">
+        <picture>
+          <!-- Se esiste assets/branches.png verrà usato automaticamente -->
+          <source srcset="assets/branches.png" type="image/png">
+          <!-- fallback identico nello stile alla demo: SVG organico -->
+          <img src="assets/branches.svg" alt="">
+        </picture>
+      </div>
       <div class="container wrap">
         <div>
           <span class="kicker">Dark — elettronica</span>

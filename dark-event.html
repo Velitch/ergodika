@@ -18,9 +18,12 @@
       </nav>
     </div>
   </header>
+
   <main>
     <section class="hero dark-bg">
-      <div class="dark-branches"><img src="assets/branches.png" alt=""></div>
+      <div class="dark-branches" aria-hidden="true">
+        <picture><source srcset="assets/branches.png" type="image/png"><img src="assets/branches.svg" alt=""></picture>
+      </div>
       <div class="container wrap">
         <div>
           <span class="kicker">Evento</span>
@@ -38,6 +41,7 @@
         </div>
       </div>
     </section>
+
     <section id="info" class="section">
       <div class="container grid cols-2">
         <article class="article">
@@ -48,17 +52,17 @@
         </article>
         <aside class="card">
           <h3>Info pratiche</h3>
-          <ul>
-            <li>Porta alle 20:30</li><li>Inizio 21:00 — fine 23:00</li><li>Capienza limitata</li>
-          </ul>
+          <ul><li>Porta alle 20:30</li><li>Inizio 21:00 — fine 23:00</li><li>Capienza limitata</li></ul>
         </aside>
       </div>
     </section>
   </main>
+
   <footer class="footer">
     <div class="container">© <span id="year"></span> Ergodika</div>
     <script>document.getElementById('year').textContent=new Date().getFullYear()</script>
   </footer>
+
   <script type="module">
     import { attachMiniViz } from './js/app.js';
     attachMiniViz(document.getElementById('viz2'));
