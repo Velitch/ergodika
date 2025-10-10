@@ -1,0 +1,9 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+  <defs><linearGradient id='grain' x1='0' y1='0' x2='1' y2='1'>
+    <stop offset='0' stop-color='#F2E7D3'/><stop offset='1' stop-color='#E6D3B8'/>
+  </linearGradient></defs>
+  <rect width='64' height='64' fill='url(#grain)'/>
+  <path d='M0 22 Q12 18 24 22 T48 22 T64 22' stroke='#d8c3a2' stroke-opacity='.6' fill='none'/>
+  <path d='M0 44 Q16 48 32 44 T64 44' stroke='#d8c3a2' stroke-opacity='.5' fill='none'/>
+  <circle cx='12' cy='30' r='1' fill='#c9b288'/><circle cx='38' cy='52' r='1' fill='#c9b288'/>
+</svg>

@@ -1,0 +1,9 @@
+{
+  "name": "Ergodika Dual-Theme Starter",
+  "short_name": "Ergodika",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0B0B12",
+  "theme_color": "#2EB6FF",
+  "icons": []
+}

@@ -1,0 +1,18 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600'>
+  <defs>
+    <radialGradient id='b' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='#2EB6FF' stop-opacity='.9'/><stop offset='100%' stop-color='#2EB6FF' stop-opacity='0'/></radialGradient>
+    <radialGradient id='m' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='#E43CC3' stop-opacity='.9'/><stop offset='100%' stop-color='#E43CC3' stop-opacity='0'/></radialGradient>
+    <radialGradient id='o' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='#FF7A18' stop-opacity='.9'/><stop offset='100%' stop-color='#FF7A18' stop-opacity='0'/></radialGradient>
+    <filter id='blur' x='-20%' y='-20%' width='140%' height='140%'><feGaussianBlur stdDeviation='1.6'/></filter>
+  </defs>
+  <g fill='none' stroke-linecap='round' stroke-width='2'>
+    <path d='M40,360 C170,300 240,420 360,360 S540,300 700,340 S940,380 1160,320' stroke='#2EB6FF' stroke-opacity='.7' filter='url(#blur)'/>
+    <path d='M100,520 C230,480 300,560 420,500 S600,440 780,500 S1000,560 1140,520' stroke='#E43CC3' stroke-opacity='.6' filter='url(#blur)'/>
+    <path d='M60,260 C200,200 340,340 480,300 S760,220 920,300 S1040,360 1180,300' stroke='#FF7A18' stroke-opacity='.55' filter='url(#blur)'/>
+  </g>
+  <g>
+    <circle cx='360' cy='360' r='32' fill='url(#b)'/>
+    <circle cx='780' cy='500' r='28' fill='url(#m)'/>
+    <circle cx='920' cy='300' r='24' fill='url(#o)'/>
+  </g>
+</svg>

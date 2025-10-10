@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ergodika — Evento / Dark</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="logo" href="index.html"><img src="assets/logo.svg" alt=""><strong>ERGODIKA</strong></a>
+      <nav class="nav-links" aria-label="Principale">
+        <a href="light-corsi.html">Light</a>
+        <a href="index.html">Home</a>
+        <button class="btn small ghost theme-toggle" type="button">Tema: Light</button>
+        <a class="btn small primary" href="#tickets">Tickets</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero dark-bg">
+      <div class="dark-branches"><img src="assets/branches.svg" alt=""></div>
+      <div class="container wrap">
+        <div>
+          <span class="kicker">Evento</span>
+          <h1>Listening Session #01</h1>
+          <p class="lead">Venerdì 24 ottobre — 21:00 · Studio Ergodika</p>
+          <div class="row"><a class="btn primary" href="#tickets">Prenota</a><a class="btn ghost" href="#info">Dettagli</a></div>
+        </div>
+        <div class="card">
+          <h3>Stream</h3>
+          <div class="player">
+            <div class="vis"><canvas id="viz2"></canvas></div>
+            <div class="meta"><strong>Preview</strong><br><small>frammento 60s</small></div>
+            <div class="ctrls"><button class="btn small">Play</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="info" class="section">
+      <div class="container grid cols-2">
+        <article class="article">
+          <h1>Line-up</h1>
+          <p>Artisti resident, ospiti e improvvisazioni cave. Portiamo i moduli fuori dalla rack e facciamo respirare i cavi.</p>
+          <img src="https://picsum.photos/id/1050/1600/900" alt="">
+          <p>Ingresso con tessera o abbonamento. Bar a cura di Studio.</p>
+        </article>
+        <aside class="card">
+          <h3>Info pratiche</h3>
+          <ul>
+            <li>Porta alle 20:30</li><li>Inizio 21:00 — fine 23:00</li><li>Capienza limitata</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">© <span id="year"></span> Ergodika</div>
+    <script>document.getElementById('year').textContent=new Date().getFullYear()</script>
+  </footer>
+  <script type="module">
+    import { attachMiniViz } from './js/app.js';
+    attachMiniViz(document.getElementById('viz2'));
+  </script>
+</body>
+</html>

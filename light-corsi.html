@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="it" data-theme="light">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ergodika — Didattica / Light</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="logo" href="index.html"><img src="assets/logo.svg" alt=""><strong>ERGODIKA</strong></a>
+      <nav class="nav-links" aria-label="Principale">
+        <a href="dark-event.html">Dark</a>
+        <a href="index.html">Home</a>
+        <button class="btn small ghost theme-toggle" type="button">Tema: Dark</button>
+        <a class="btn small primary" href="#iscrizioni">Iscriviti</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero light-bg">
+      <div class="light-shelf" aria-hidden="true"></div>
+      <div class="container wrap">
+        <div>
+          <span class="kicker">Didattica</span>
+          <h1>Corso di Sintesi & Produzione</h1>
+          <p class="lead">Percorso modulare in 6 moduli: sound design, mixing, pratica d’ascolto.</p>
+          <div class="row"><a class="btn primary" href="#iscrizioni">Iscriviti</a><a class="btn ghost" href="#programma">Programma</a></div>
+        </div>
+        <div class="card">
+          <h3>Prossime date</h3>
+          <ul><li>14 Nov — Lezione 1</li><li>21 Nov — Lezione 2</li><li>28 Nov — Lezione 3</li></ul>
+        </div>
+      </div>
+    </section>
+    <section id="programma" class="section">
+      <div class="container">
+        <article class="article">
+          <h1>Programma dettagliato</h1>
+          <p>Partiamo dall’ascolto e dalla sintesi sottrattiva, poi FM, wavetable e granulare, fino alla forma canzone e alla ripetizione ipnotica.</p>
+          <h2>Materiali</h2>
+          <ul><li>Dispense PDF</li><li>Progetti DAW di esempio</li><li>Campioni royalty-free</li></ul>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">© <span id="year"></span> Ergodika</div>
+    <script>document.getElementById('year').textContent=new Date().getFullYear()</script>
+  </footer>
+  <script src="js/app.js" type="module"></script>
+</body>
+</html>
