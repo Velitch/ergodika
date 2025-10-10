@@ -1,12 +1,32 @@
 // assets/js/auth.js — Client-side auth helpers (no exports, safe for <script>)
 // Assumes the API is same-origin under /api. If different, set window.__ERGODIKA.workerBase.
 (function () {
-  const cfg = window.__ERGODIKA || {};
-  const workerBase = (cfg.workerBase || '/api').replace(/\/$/, '');
+  const cfgPromise = (window.__ERGODIKA_READY || Promise.resolve(window.__ERGODIKA || {}))
+    .catch(() => ({}));
+  let workerBase = '/api';
+
+  cfgPromise.then((cfg) => {
+    if (cfg && typeof cfg === 'object' && cfg.workerBase) {
+      workerBase = String(cfg.workerBase).replace(/\/$/, '') || '/api';
+    }
+    if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
+      window.__ERGODIKA = cfg || {};
+    }
+  });
+
+  async function ensureConfig() {
+    try {
+      await cfgPromise;
+    } catch (_) {
+      /* noop */
+    }
+  }
+
   const api = (p) => workerBase + '/' + String(p || '').replace(/^\//, '');
 
   /* ----------------------------- Utilities ----------------------------- */
   async function getJSON(url, opts = {}) {
+    await ensureConfig();
     const r = await fetch(url, { credentials: 'include', ...opts });
     const ct = r.headers.get('content-type') || '';
     let body = null;
@@ -18,10 +38,16 @@
   const qs = new URLSearchParams(location.search);
 
   /* ----------------------- Google OAuth (Start) ------------------------ */
-  function startGoogle(redirect) {
-    const dest = redirect || qs.get('redirect') || '/pages/account.html';
-    const url = api('/auth/google/start') + '?redirect=' + encodeURIComponent(dest);
-    location.href = url;
+  async function startGoogle(redirect) {
+    try {
+      await ensureConfig();
+      const dest = redirect || qs.get('redirect') || '/pages/account.html';
+      const url = api('/auth/google/start') + '?redirect=' + encodeURIComponent(dest);
+      location.href = url;
+    } catch (err) {
+      console.error('Errore durante startGoogle:', err);
+      alert('Impossibile contattare il servizio di autenticazione. Riprova più tardi.');
+    }
   }
 
   /* -------------------- Email/Password (optional) --------------------- */
@@ -33,7 +59,9 @@
       password: f.querySelector('input[name="password"]')?.value || ''
     };
     try {
-      await getJSON(api('/auth/register'), {
+      await ensureConfig();
+      const url = api('/auth/register');
+      await getJSON(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -52,7 +80,9 @@
       password: f.querySelector('input[name="password"]')?.value || ''
     };
     try {
-      await getJSON(api('/auth/login'), {
+      await ensureConfig();
+      const url = api('/auth/login');
+      await getJSON(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -66,7 +96,7 @@
   /* --------------------------- Bind UI hooks -------------------------- */
   window.addEventListener('DOMContentLoaded', () => {
     const g1 = document.querySelector('[data-google-login]');
-    if (g1) g1.addEventListener('click', () => startGoogle('/pages/account.html'));
+    if (g1) g1.addEventListener('click', () => { void startGoogle('/pages/account.html'); });
 
     const reg = document.getElementById('signupForm');
     if (reg) reg.addEventListener('submit', onRegister);
@@ -78,6 +108,8 @@
   /* --------------------------- Expose minimal -------------------------- */
   window.ErgAuth = {
     startGoogle,
-    apiBase: workerBase
+    get apiBase() {
+      return workerBase;
+    }
   };
 })();

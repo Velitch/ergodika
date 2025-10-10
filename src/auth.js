@@ -7,18 +7,22 @@ function json(data, status = 200) {
     headers: { "content-type": "application/json; charset=utf-8" },
   });
 }
-function buildCookie(name, value, { maxAge = 60 * 60 * 24 * 30 } = {}) {
-  return [
+function buildCookie(name, value, { maxAge = 60 * 60 * 24 * 30, domain } = {}) {
+  const parts = [
     `${name}=${value}`,
     "Path=/",
     "HttpOnly",
     "Secure",
-    "SameSite=Lax",   // same-origin: perfetto
+    "SameSite=Lax",   // same-origin o sottodomini
     `Max-Age=${maxAge}`,
-  ].join("; ");
+  ];
+  if (domain) parts.push(`Domain=${domain}`);
+  return parts.join("; ");
 }
-function clearCookie(name) {
-  return [`${name}=`, "Path=/", "HttpOnly", "Secure", "SameSite=Lax", "Max-Age=0"].join("; ");
+function clearCookie(name, { domain } = {}) {
+  const parts = [`${name}=`, "Path=/", "HttpOnly", "Secure", "SameSite=Lax", "Max-Age=0"];
+  if (domain) parts.push(`Domain=${domain}`);
+  return parts.join("; ");
 }
 function parseCookies(req) {
   const raw = req.headers.get("Cookie") || "";
@@ -55,9 +59,10 @@ async function kvDel(env, key) {
 async function handleStart(request, url, env) {
   const redirect = url.searchParams.get("redirect") || "/pages/account.html";
   const nonce = rid(12);
+  const domain = env.COOKIE_DOMAIN || null;
 
   // cookie breve per validare lo state al callback
-  const oauthCookie = buildCookie("erg_oauth", nonce, { maxAge: 600 }); // 10 min
+  const oauthCookie = buildCookie("erg_oauth", nonce, { maxAge: 600, domain }); // 10 min
 
   // state = base64({ r: redirect, n: nonce })
   const state = btoa(JSON.stringify({ r: redirect, n: nonce }));
@@ -89,6 +94,7 @@ async function handleCallback(request, url, env) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   if (!code || !state) return json({ ok: false, error: "Missing code/state" }, 400);
+  const domain = env.COOKIE_DOMAIN || null;
 
   // valida nonce
   const cookies = parseCookies(request);
@@ -146,8 +152,8 @@ async function handleCallback(request, url, env) {
   // sessione + pulizia cookie oauth
   const sid = "s_" + rid(16);
   await kvSet(env, `sess:${sid}`, { userId: user.id }, 60 * 60 * 24 * 30); // 30 giorni
-  const sessionCookie = buildCookie("erg_sess", sid, { maxAge: 60 * 60 * 24 * 30 });
-  const clearOauth = clearCookie("erg_oauth");
+  const sessionCookie = buildCookie("erg_sess", sid, { maxAge: 60 * 60 * 24 * 30, domain });
+  const clearOauth = clearCookie("erg_oauth", { domain });
 
   // destinazione finale
   const dest = (wanted.r && wanted.r.startsWith("/")) ? wanted.r : "/pages/account.html";
@@ -178,12 +184,13 @@ async function handleMe(request, env) {
 async function handleLogout(request, env) {
   const cookies = parseCookies(request);
   const sid = cookies["erg_sess"];
+  const domain = env.COOKIE_DOMAIN || null;
   if (sid) await kvDel(env, `sess:${sid}`);
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
     headers: {
       "content-type": "application/json",
-      "Set-Cookie": clearCookie("erg_sess"),
+      "Set-Cookie": clearCookie("erg_sess", { domain }),
     },
   });
 }

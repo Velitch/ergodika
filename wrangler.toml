@@ -20,6 +20,7 @@ CONNECT_FEE_PERCENT = "20"
 GOOGLE_REDIRECT_URL = "https://www.ergodika.it/api/auth/google/callback"
 # Public Stripe key (safe in repo)
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
+COOKIE_DOMAIN = ".ergodika.it"
 
 [[kv_namespaces]]
 binding = "ERGODIKA"

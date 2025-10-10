@@ -3,13 +3,32 @@
 // If you changed it, update workerBase in config/app.json or here.
 
 (function(){
-  const cfg = window.__ERGODIKA || {};
-  const workerBase = (cfg.workerBase || '/api').replace(/\/$/, ''); // '/api' (no trailing slash)
+  const cfgPromise = (window.__ERGODIKA_READY || Promise.resolve(window.__ERGODIKA || {}))
+    .catch(() => ({}));
+  let workerBase = '/api';
+
+  cfgPromise.then((cfg) => {
+    if (cfg && typeof cfg === 'object' && cfg.workerBase) {
+      workerBase = String(cfg.workerBase).replace(/\/$/, '') || '/api';
+    }
+    if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
+      window.__ERGODIKA = cfg || {};
+    }
+  });
+
+  async function ensureConfig() {
+    try {
+      await cfgPromise;
+    } catch (_) {
+      /* ignore */
+    }
+  }
 
   // helper to safely join paths without // or missing /
   const api = (p) => workerBase + '/' + String(p || '').replace(/^\//, '');
 
   async function getJSON(url, opts = {}) {
+    await ensureConfig();
     const r = await fetch(url, { credentials: 'include', ...opts });
     const ct = r.headers.get('content-type') || '';
     if (!ct.includes('application/json')) throw new Error('Unexpected content-type: ' + ct);
@@ -26,6 +45,7 @@
 
   async function refreshMe(){
     try {
+      await ensureConfig();
       const me = await getJSON(api('/auth/me'));
       if (me.user) {
         if (elStatus) elStatus.textContent = 'Accesso effettuato';
@@ -47,6 +67,7 @@
 
   async function doLogout(){
     try {
+      await ensureConfig();
       await getJSON(api('/logout'), { method: 'POST' });
       location.reload();
     } catch (e) {

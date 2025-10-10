@@ -9,6 +9,7 @@ Questa è la **struttura completa** della PWA pronta per GitHub Pages.
 
 ## Configurazioni
 - `config/app.json`
+  - `workerBase`: URL base dell'API (es. `https://api.tuosito.it/api` per un Worker su sottodominio)
   - `stripe.publicKey`: la tua `pk_test_...`
   - `stripe.workerBase`: URL del tuo Cloudflare Worker
   - `radio.streamUrl`: URL AzuraCast (es. https://.../live)
