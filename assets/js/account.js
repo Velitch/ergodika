@@ -5,11 +5,16 @@
 (function(){
   const cfgPromise = (window.__ERGODIKA_READY || Promise.resolve(window.__ERGODIKA || {}))
     .catch(() => ({}));
+  const remoteFallback = 'https://api.ergodika.it/api';
   let workerBase = '/api';
+
+  if (location.hostname.endsWith('ergodika.it') && location.hostname !== 'api.ergodika.it') {
+    workerBase = remoteFallback;
+  }
 
   cfgPromise.then((cfg) => {
     if (cfg && typeof cfg === 'object' && cfg.workerBase) {
-      workerBase = String(cfg.workerBase).replace(/\/$/, '') || '/api';
+      workerBase = String(cfg.workerBase).replace(/\/$/, '') || workerBase;
     }
     if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
       window.__ERGODIKA = cfg || {};
