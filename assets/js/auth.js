@@ -5,7 +5,8 @@
   const cfgPromise = (window.__ERGODIKA_READY || Promise.resolve(window.__ERGODIKA || {}))
     .catch(() => ({}));
   const remoteFallback = 'https://api.ergodika.it/api';
-  let workerBase = '/api';
+  const LOCAL_WORKER_BASE = '/api';
+  let workerBase = LOCAL_WORKER_BASE;
 
   function ensureErgodikaObject() {
     if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
@@ -15,7 +16,7 @@
   }
 
   function updateWorkerBase(next) {
-    workerBase = String(next || '/api').replace(/\/$/, '') || '/api';
+    workerBase = String(next || LOCAL_WORKER_BASE).replace(/\/$/, '') || LOCAL_WORKER_BASE;
     ensureErgodikaObject().workerBase = workerBase;
   }
 
@@ -50,7 +51,7 @@
       ? String(cfg.workerBase).replace(/\/$/, '')
       : workerBase;
     if (shouldForceLocal(resolved)) {
-      updateWorkerBase('/api');
+      updateWorkerBase(LOCAL_WORKER_BASE);
     } else if (resolved) {
       updateWorkerBase(resolved);
     }
@@ -64,24 +65,24 @@
     }
   }
 
-  const api = (p) => workerBase + '/' + String(p || '').replace(/^\//, '');
+  const joinApi = (base, p) => base + '/' + String(p || '').replace(/^\//, '');
+  const api = (p) => joinApi(workerBase, p);
 
   /* ----------------------------- Utilities ----------------------------- */
-  async function getJSON(path, opts = {}, attempt = 0) {
+  async function getJSON(path, opts = {}, attempt = 0, base = workerBase) {
     await ensureConfig();
-    const url = api(path);
-    const r = await fetch(url, { credentials: 'include', ...opts }).catch((err) => {
-      if (err && err.name === 'TypeError' && attempt === 0 && workerBase !== '/api' && ABSOLUTE_RE.test(workerBase)) {
-        console.warn('Falling back to local /api after network error:', err);
-        updateWorkerBase('/api');
-        return null;
+    const url = joinApi(base, path);
+    let r;
+    try {
+      r = await fetch(url, { credentials: 'include', ...opts });
+    } catch (err) {
+      if (err && err.name === 'TypeError' && attempt === 0 && base !== LOCAL_WORKER_BASE && ABSOLUTE_RE.test(base)) {
+        console.warn('Falling back to local', LOCAL_WORKER_BASE, 'after network error:', err);
+        return getJSON(path, opts, attempt + 1, LOCAL_WORKER_BASE);
       }
       throw err;
-    });
-
-    if (!r) {
-      return getJSON(path, opts, attempt + 1);
     }
+
     const ct = r.headers.get('content-type') || '';
     let body = null;
     try { body = ct.includes('application/json') ? await r.json() : { ok:false, error:'Unexpected content' }; }
