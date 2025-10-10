@@ -66,3 +66,30 @@ h1{font-size:clamp(2rem,4vw,3rem);line-height:1.08;margin:0 0 10px}
 .footer{border-top:1px solid var(--border);padding:28px 0 60px;color:#b9bcd0}:root[data-theme="light"] .footer{color:#4a5169}
 .hide{display:none!important}.stack{display:flex;flex-direction:column;gap:10px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 @media (prefers-reduced-motion: reduce){.dark-branches img{transform:none!important}}
+
+
+/* === Button overrides v3 (stable, 2025-09) === */
+.btn{
+  --cap: currentColor;
+  --dot-default: color-mix(in srgb, var(--fg) 20%, var(--bg));
+  --dot-active: var(--accent-2);
+  transition: background-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.btn::before{
+  content:"";width:10px;height:10px;border-radius:50%;
+  background: var(--dot-default);
+  opacity:.55;
+  box-shadow:0 0 0 2px color-mix(in srgb, var(--fg) 12%, transparent);
+}
+.btn:hover::before,
+.btn:focus-visible::before,
+.btn:active::before{
+  background: var(--dot-active);
+  opacity: 1;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent-2) 20%, transparent),
+    0 0 8px color-mix(in srgb, var(--accent-2) 50%, transparent);
+}
+.btn:hover{ transform: none !important; }
+.btn:active{ transform: none !important; }
+
