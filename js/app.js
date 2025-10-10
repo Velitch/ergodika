@@ -159,7 +159,7 @@ if ('serviceWorker' in navigator) {
     const head = document.createElement('div');
     head.className = 'nav-head';
     head.innerHTML = `
-      <div class="brand"><img src="./assets/logo.svg" width="24" height="24" alt=""> <strong>ERGODIKA</strong></div>
+      <div class="brand"><img src="./assets/favicon-96x96.png" width="24" height="24" alt=""> <strong>ERGODIKA</strong></div>
       <button class="close" type="button" aria-label="Chiudi menu"><span class="bars"></span></button>
     `;
     drawer.appendChild(head);
