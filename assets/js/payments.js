@@ -1,7 +1,20 @@
 (function () {
+  const DEFAULT_WORKER_BASE = (() => {
+    if (typeof window === 'undefined') return '/api';
+    const host = String(window.location.hostname || '').toLowerCase();
+    if (!host) return '/api';
+    if (host === 'www.ergodika.it' || host === 'ergodika.it') {
+      return 'https://api.ergodika.it/api';
+    }
+    if (host.endsWith('.ergodika.it') && host !== 'api.ergodika.it') {
+      return 'https://api.ergodika.it/api';
+    }
+    return '/api';
+  })();
+
   const STATE = {
     config: null,
-    workerBase: '/api',
+    workerBase: DEFAULT_WORKER_BASE,
     prices: {},
   };
 
@@ -12,12 +25,13 @@
       const cfg = await res.json();
       const stripe = cfg?.stripe || {};
       STATE.config = cfg;
-      STATE.workerBase = String(stripe.workerBase || cfg.workerBase || '/api').replace(/\/$/, '') || '/api';
+      STATE.workerBase = String(stripe.workerBase || cfg.workerBase || DEFAULT_WORKER_BASE)
+        .replace(/\/$/, '') || DEFAULT_WORKER_BASE;
       STATE.prices = stripe.prices || {};
     } catch (err) {
       console.warn('[ErgodikaPayments] Config load failed:', err && err.message);
       STATE.config = {};
-      STATE.workerBase = '/api';
+      STATE.workerBase = DEFAULT_WORKER_BASE;
       STATE.prices = {};
     }
     return STATE;
@@ -50,8 +64,14 @@
       body = null;
     }
     if (!res.ok || (body && body.ok === false)) {
-      const err = body && (body.error || body.message);
-      throw new Error(err || 'Richiesta non riuscita (' + res.status + ')');
+      const baseMessage = body && (body.error || body.message);
+      let message = baseMessage || 'Richiesta non riuscita (HTTP ' + res.status + ')';
+      if (res.status === 404 || res.status === 405) {
+        message = 'Servizio non disponibile in questo ambiente (HTTP ' + res.status + ')';
+      }
+      const error = new Error(message);
+      error.status = res.status;
+      throw error;
     }
     return body || {};
   }
