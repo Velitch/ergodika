@@ -6,6 +6,8 @@
     .catch(() => ({}));
   const remoteFallback = 'https://api.ergodika.it/api';
   let workerBase = '/api';
+  let remoteCandidate = null;
+  let remoteAttempted = false;
 
   function ensureErgodikaObject() {
     if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
@@ -17,6 +19,27 @@
   function updateWorkerBase(next) {
     workerBase = String(next || '/api').replace(/\/$/, '') || '/api';
     ensureErgodikaObject().workerBase = workerBase;
+  }
+
+  function registerRemoteCandidate(next) {
+    const raw = String(next || '').trim();
+    if (!raw) return;
+    const normalized = raw.replace(/\/$/, '');
+    if (!ABSOLUTE_RE.test(normalized)) return;
+    remoteCandidate = normalized;
+    ensureErgodikaObject().remoteWorkerBase = normalized;
+  }
+
+  function canUseRemoteFallback() {
+    return !!remoteCandidate && !remoteAttempted && workerBase !== remoteCandidate;
+  }
+
+  function useRemoteFallback(reason) {
+    if (!canUseRemoteFallback()) return false;
+    remoteAttempted = true;
+    if (reason) console.warn(reason);
+    updateWorkerBase(remoteCandidate);
+    return true;
   }
 
   function isLikelyLocalHost(hostname) {
@@ -35,10 +58,10 @@
     return isLikelyLocalHost(location.hostname);
   }
 
+  updateWorkerBase(workerBase);
+
   if (location.hostname.endsWith('ergodika.it') && location.hostname !== 'api.ergodika.it') {
-    updateWorkerBase(remoteFallback);
-  } else {
-    updateWorkerBase(workerBase);
+    registerRemoteCandidate(remoteFallback);
   }
 
   cfgPromise.then((cfg) => {
@@ -51,9 +74,12 @@
       : workerBase;
     if (shouldForceLocal(resolved)) {
       updateWorkerBase('/api');
+    } else if (ABSOLUTE_RE.test(resolved) && resolved !== '/api') {
+      registerRemoteCandidate(resolved);
     } else if (resolved) {
       updateWorkerBase(resolved);
     }
+    target.workerBase = workerBase;
   });
 
   async function ensureConfig() {
@@ -71,15 +97,25 @@
     await ensureConfig();
     const url = api(path);
     const r = await fetch(url, { credentials: 'include', ...opts }).catch((err) => {
-      if (err && err.name === 'TypeError' && attempt === 0 && workerBase !== '/api' && ABSOLUTE_RE.test(workerBase)) {
-        console.warn('Falling back to local /api after network error:', err);
-        updateWorkerBase('/api');
-        return null;
+      if (err && err.name === 'TypeError' && attempt === 0) {
+        if (workerBase !== '/api' && ABSOLUTE_RE.test(workerBase)) {
+          console.warn('Falling back to local /api after network error:', err);
+          updateWorkerBase('/api');
+          return null;
+        }
+        if (workerBase === '/api' && canUseRemoteFallback()) {
+          useRemoteFallback('Retrying request against remote API after local network error');
+          return null;
+        }
       }
       throw err;
     });
 
     if (!r) {
+      return getJSON(path, opts, attempt + 1);
+    }
+    if (r.status === 404 && workerBase === '/api' && canUseRemoteFallback()) {
+      useRemoteFallback('Retrying request against remote API after 404 on local endpoint');
       return getJSON(path, opts, attempt + 1);
     }
     const ct = r.headers.get('content-type') || '';
