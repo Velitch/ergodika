@@ -31,7 +31,16 @@
     await ensureConfig();
     const r = await fetch(url, { credentials: 'include', ...opts });
     const ct = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) throw new Error('Unexpected content-type: ' + ct);
+
+    if (!ct.includes('application/json')) {
+      if (r.status === 404) {
+        return null;
+      }
+
+      const body = await r.text().catch(() => '');
+      throw new Error(`Unexpected response (${r.status}): ${ct || 'no content-type'}${body ? ` — ${body.slice(0, 120)}` : ''}`);
+    }
+
     const j = await r.json();
     if (!r.ok || j.ok === false) throw new Error(j.error || 'Request failed');
     return j;
@@ -47,7 +56,7 @@
     try {
       await ensureConfig();
       const me = await getJSON(api('/auth/me'));
-      if (me.user) {
+      if (me && me.user) {
         if (elStatus) elStatus.textContent = 'Accesso effettuato';
         if (elEmail)  elEmail.textContent = me.user.email || '(senza email)';
         if (elAvatar && me.user.picture) {
@@ -68,7 +77,7 @@
   async function doLogout(){
     try {
       await ensureConfig();
-      await getJSON(api('/logout'), { method: 'POST' });
+      await getJSON(api('/auth/logout'), { method: 'POST' });
       location.reload();
     } catch (e) {
       alert('Errore durante il logout');
