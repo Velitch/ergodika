@@ -155,13 +155,19 @@
 
   <script src="/assets/js/payments.js"></script>
   <script>
+    const PAGE_HOST = String(window.location.hostname || "").toLowerCase();
+    const LIKELY_LOCAL_HOST = !PAGE_HOST
+      || PAGE_HOST === "localhost"
+      || PAGE_HOST === "127.0.0.1"
+      || PAGE_HOST === "0.0.0.0"
+      || PAGE_HOST.endsWith(".local");
+
     const DEFAULT_WORKER_BASE = (() => {
-      const host = String(window.location.hostname || "").toLowerCase();
-      if (!host) return "/api";
-      if (host === "www.ergodika.it" || host === "ergodika.it") {
+      if (LIKELY_LOCAL_HOST) return "/api";
+      if (PAGE_HOST === "www.ergodika.it" || PAGE_HOST === "ergodika.it") {
         return "https://api.ergodika.it/api";
       }
-      if (host.endsWith(".ergodika.it") && host !== "api.ergodika.it") {
+      if (PAGE_HOST.endsWith(".ergodika.it") && PAGE_HOST !== "api.ergodika.it") {
         return "https://api.ergodika.it/api";
       }
       return "/api";
@@ -191,7 +197,13 @@
               const cfg = await res.json();
               const base = String(cfg?.stripe?.workerBase || cfg?.workerBase || FALLBACK_WORKER_BASE)
                 .replace(/\/$/, "");
-              if (base) return base || FALLBACK_WORKER_BASE;
+              if (base) {
+                if (LIKELY_LOCAL_HOST && /^https?:/i.test(base) && FALLBACK_WORKER_BASE.startsWith("/")) {
+                  console.info("[Manifesto] Ignoro worker remoto in ambiente locale.");
+                  return FALLBACK_WORKER_BASE;
+                }
+                return base || FALLBACK_WORKER_BASE;
+              }
             } else {
               console.warn("[Manifesto] Config HTTP", res.status);
             }
@@ -252,6 +264,9 @@
           statusEl.textContent = "Aggiornamento non riuscito. Riprovo tra poco.";
         }
         console.warn("Counters fetch failed", e);
+        if ((e && e.name === "TypeError") || /failed to fetch/i.test(String(e && e.message))) {
+          disableCounters("Contatori non disponibili in questo ambiente.");
+        }
       }
     }
 
