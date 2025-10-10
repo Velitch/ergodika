@@ -1,21 +1,58 @@
 // assets/js/auth.js — Client-side auth helpers (no exports, safe for <script>)
 // Assumes the API is same-origin under /api. If different, set window.__ERGODIKA.workerBase.
 (function () {
+  const ABSOLUTE_RE = /^https?:\/\//i;
   const cfgPromise = (window.__ERGODIKA_READY || Promise.resolve(window.__ERGODIKA || {}))
     .catch(() => ({}));
   const remoteFallback = 'https://api.ergodika.it/api';
   let workerBase = '/api';
 
+  function ensureErgodikaObject() {
+    if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
+      window.__ERGODIKA = {};
+    }
+    return window.__ERGODIKA;
+  }
+
+  function updateWorkerBase(next) {
+    workerBase = String(next || '/api').replace(/\/$/, '') || '/api';
+    ensureErgodikaObject().workerBase = workerBase;
+  }
+
+  function isLikelyLocalHost(hostname) {
+    if (!hostname) return true;
+    const lower = hostname.toLowerCase();
+    if (lower === 'localhost' || lower === '127.0.0.1' || lower === '0.0.0.0') return true;
+    if (lower.endsWith('.local')) return true;
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(lower)) return true;
+    return false;
+  }
+
+  function shouldForceLocal(base) {
+    if (!ABSOLUTE_RE.test(base)) return false;
+    if (base.startsWith(location.origin)) return false;
+    if (location.protocol === 'file:') return true;
+    return isLikelyLocalHost(location.hostname);
+  }
+
   if (location.hostname.endsWith('ergodika.it') && location.hostname !== 'api.ergodika.it') {
-    workerBase = remoteFallback;
+    updateWorkerBase(remoteFallback);
+  } else {
+    updateWorkerBase(workerBase);
   }
 
   cfgPromise.then((cfg) => {
-    if (cfg && typeof cfg === 'object' && cfg.workerBase) {
-      workerBase = String(cfg.workerBase).replace(/\/$/, '') || workerBase;
+    const target = ensureErgodikaObject();
+    if (cfg && typeof cfg === 'object') {
+      Object.assign(target, cfg);
     }
-    if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
-      window.__ERGODIKA = cfg || {};
+    const resolved = (cfg && typeof cfg === 'object' && cfg.workerBase)
+      ? String(cfg.workerBase).replace(/\/$/, '')
+      : workerBase;
+    if (shouldForceLocal(resolved)) {
+      updateWorkerBase('/api');
+    } else if (resolved) {
+      updateWorkerBase(resolved);
     }
   });
 
@@ -30,9 +67,21 @@
   const api = (p) => workerBase + '/' + String(p || '').replace(/^\//, '');
 
   /* ----------------------------- Utilities ----------------------------- */
-  async function getJSON(url, opts = {}) {
+  async function getJSON(path, opts = {}, attempt = 0) {
     await ensureConfig();
-    const r = await fetch(url, { credentials: 'include', ...opts });
+    const url = api(path);
+    const r = await fetch(url, { credentials: 'include', ...opts }).catch((err) => {
+      if (err && err.name === 'TypeError' && attempt === 0 && workerBase !== '/api' && ABSOLUTE_RE.test(workerBase)) {
+        console.warn('Falling back to local /api after network error:', err);
+        updateWorkerBase('/api');
+        return null;
+      }
+      throw err;
+    });
+
+    if (!r) {
+      return getJSON(path, opts, attempt + 1);
+    }
     const ct = r.headers.get('content-type') || '';
     let body = null;
     try { body = ct.includes('application/json') ? await r.json() : { ok:false, error:'Unexpected content' }; }
@@ -65,8 +114,7 @@
     };
     try {
       await ensureConfig();
-      const url = api('/auth/register');
-      await getJSON(url, {
+      await getJSON('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -86,8 +134,7 @@
     };
     try {
       await ensureConfig();
-      const url = api('/auth/login');
-      await getJSON(url, {
+      await getJSON('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

@@ -3,21 +3,61 @@
 // If you changed it, update workerBase in config/app.json or here.
 
 (function(){
+  const ABSOLUTE_RE = /^https?:\/\//i;
   const cfgPromise = (window.__ERGODIKA_READY || Promise.resolve(window.__ERGODIKA || {}))
     .catch(() => ({}));
   const remoteFallback = 'https://api.ergodika.it/api';
   let workerBase = '/api';
 
+  function ensureErgodikaObject() {
+    if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
+      window.__ERGODIKA = {};
+    }
+    return window.__ERGODIKA;
+  }
+
+  function updateWorkerBase(next) {
+    workerBase = String(next || '/api').replace(/\/$/, '') || '/api';
+    ensureErgodikaObject().workerBase = workerBase;
+  }
+
+  function isLikelyLocalHost(hostname) {
+    if (!hostname) return true;
+    const lower = hostname.toLowerCase();
+    if (lower === 'localhost' || lower === '127.0.0.1' || lower === '0.0.0.0') return true;
+    if (lower.endsWith('.local')) return true;
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(lower)) return true;
+    return false;
+  }
+
+  function shouldForceLocal(base) {
+    if (!ABSOLUTE_RE.test(base)) return false;
+    if (base.startsWith(location.origin)) return false;
+    if (location.protocol === 'file:') return true;
+    return isLikelyLocalHost(location.hostname);
+  }
+
   if (location.hostname.endsWith('ergodika.it') && location.hostname !== 'api.ergodika.it') {
-    workerBase = remoteFallback;
+    updateWorkerBase(remoteFallback);
+  } else {
+    updateWorkerBase(workerBase);
   }
 
   cfgPromise.then((cfg) => {
-    if (cfg && typeof cfg === 'object' && cfg.workerBase) {
-      workerBase = String(cfg.workerBase).replace(/\/$/, '') || workerBase;
+    const target = ensureErgodikaObject();
+    if (cfg && typeof cfg === 'object') {
+      Object.assign(target, cfg);
     }
-    if (!window.__ERGODIKA || typeof window.__ERGODIKA !== 'object') {
-      window.__ERGODIKA = cfg || {};
+    const resolved = (cfg && typeof cfg === 'object' && cfg.workerBase)
+      ? String(cfg.workerBase).replace(/\/$/, '')
+      : workerBase;
+    if (shouldForceLocal(resolved)) {
+      updateWorkerBase('/api');
+    } else if (resolved) {
+      updateWorkerBase(resolved);
+    }
+    if (!target.workerBase) {
+      target.workerBase = workerBase;
     }
   });
 
@@ -32,9 +72,21 @@
   // helper to safely join paths without // or missing /
   const api = (p) => workerBase + '/' + String(p || '').replace(/^\//, '');
 
-  async function getJSON(url, opts = {}) {
+  async function getJSON(path, opts = {}, attempt = 0) {
     await ensureConfig();
-    const r = await fetch(url, { credentials: 'include', ...opts });
+    const url = api(path);
+    const r = await fetch(url, { credentials: 'include', ...opts }).catch((err) => {
+      if (err && err.name === 'TypeError' && attempt === 0 && workerBase !== '/api' && ABSOLUTE_RE.test(workerBase)) {
+        console.warn('Falling back to local /api after network error:', err);
+        updateWorkerBase('/api');
+        return null;
+      }
+      throw err;
+    });
+
+    if (!r) {
+      return getJSON(path, opts, attempt + 1);
+    }
     const ct = r.headers.get('content-type') || '';
 
     if (!ct.includes('application/json')) {
@@ -60,7 +112,7 @@
   async function refreshMe(){
     try {
       await ensureConfig();
-      const me = await getJSON(api('/auth/me'));
+      const me = await getJSON('/auth/me');
       if (me && me.user) {
         if (elStatus) elStatus.textContent = 'Accesso effettuato';
         if (elEmail)  elEmail.textContent = me.user.email || '(senza email)';
@@ -82,7 +134,7 @@
   async function doLogout(){
     try {
       await ensureConfig();
-      await getJSON(api('/auth/logout'), { method: 'POST' });
+      await getJSON('/auth/logout', { method: 'POST' });
       location.reload();
     } catch (e) {
       alert('Errore durante il logout');
