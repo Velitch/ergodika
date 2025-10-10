@@ -140,13 +140,52 @@
 
   <script src="/assets/js/payments.js"></script>
   <script>
-    const WORKER_BASE = "/api";
+    const FALLBACK_WORKER_BASE = "/api";
+    let workerBasePromise = null;
+
+    async function resolveWorkerBase() {
+      if (!workerBasePromise) {
+        workerBasePromise = (async () => {
+          try {
+            if (window.ErgodikaPayments?.ready) {
+              await window.ErgodikaPayments.ready();
+              const base = window.ErgodikaPayments.workerBase;
+              if (base) return base;
+            }
+          } catch (err) {
+            console.warn("[Manifesto] Payments config unavailable:", err?.message || err);
+          }
+
+          try {
+            const res = await fetch("/config/app.json", { cache: "no-store" });
+            if (res.ok) {
+              const cfg = await res.json();
+              const base = String(cfg?.stripe?.workerBase || cfg?.workerBase || FALLBACK_WORKER_BASE)
+                .replace(/\/$/, "");
+              if (base) return base || FALLBACK_WORKER_BASE;
+            } else {
+              console.warn("[Manifesto] Config HTTP", res.status);
+            }
+          } catch (err) {
+            console.warn("[Manifesto] Config fetch failed:", err?.message || err);
+          }
+
+          return FALLBACK_WORKER_BASE;
+        })();
+      }
+
+      return workerBasePromise;
+    }
 
     async function getCounters() {
       try {
+        const WORKER_BASE = await resolveWorkerBase();
         const res = await fetch(WORKER_BASE + "/debug-counters", {
           cache: "no-store"
         });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
         const data = await res.json();
         document.getElementById("counter-donations").textContent = data["payments:count"] || "0";
         document.getElementById("counter-subs").textContent = data["subs:paid"] || "0";
@@ -158,6 +197,7 @@
 
     async function donate(amount) {
       try {
+        const WORKER_BASE = await resolveWorkerBase();
         const res = await fetch(WORKER_BASE + "/checkout/one-time", {
           method: "POST",
           headers: {
@@ -169,11 +209,14 @@
             memo: "Supporto Ergodika"
           })
         });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
         const data = await res.json();
         if (data.url) window.location.href = data.url;
         else alert("Errore: " + (data.error || "imprevisto"));
       } catch (e) {
-        alert("Connessione non riuscita");
+        alert(e?.message ? ("Connessione non riuscita: " + e.message) : "Connessione non riuscita");
       }
     }
 
@@ -181,6 +224,7 @@
       // imposta qui il tuo priceId da Stripe
       const priceId = "price_1SEy51RrORapViImXAr4Lmae";
       try {
+        const WORKER_BASE = await resolveWorkerBase();
         const res = await fetch(WORKER_BASE + "/checkout/subscription", {
           method: "POST",
           headers: {
@@ -191,11 +235,14 @@
             memo: "Abbonamento Ergodika"
           })
         });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
         const data = await res.json();
         if (data.url) window.location.href = data.url;
         else alert("Errore: " + (data.error || "imprevisto"));
       } catch (e) {
-        alert("Connessione non riuscita");
+        alert(e?.message ? ("Connessione non riuscita: " + e.message) : "Connessione non riuscita");
       }
     }
 
