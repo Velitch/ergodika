@@ -1,29 +1,23 @@
 <!doctype html>
 <html lang="it" data-theme="dark">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Ergodika — Evento / Dark</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.webmanifest"/><link rel="stylesheet" href="css/styles.css"/>
 </head>
 <body>
   <header class="navbar">
     <div class="container inner">
       <a class="logo" href="index.html"><img src="assets/logo.svg" alt=""><strong>ERGODIKA</strong></a>
       <nav class="nav-links" aria-label="Principale">
-        <a href="light-corsi.html">Light</a>
-        <a href="index.html">Home</a>
+        <a href="light-corsi.html">Light</a><a href="index.html">Home</a>
         <button class="btn small ghost theme-toggle" type="button">Tema: Light</button>
         <a class="btn small primary" href="#tickets">Tickets</a>
       </nav>
     </div>
   </header>
-
   <main>
-    <section class="hero dark-bg">
-      <div class="dark-branches" aria-hidden="true">
-        <picture><source srcset="assets/branches.png" type="image/png"><img src="assets/branches.svg" alt=""></picture>
-      </div>
+    <section class="hero">
       <div class="container wrap">
         <div>
           <span class="kicker">Evento</span>
@@ -41,7 +35,6 @@
         </div>
       </div>
     </section>
-
     <section id="info" class="section">
       <div class="container grid cols-2">
         <article class="article">
@@ -57,15 +50,10 @@
       </div>
     </section>
   </main>
-
   <footer class="footer">
     <div class="container">© <span id="year"></span> Ergodika</div>
     <script>document.getElementById('year').textContent=new Date().getFullYear()</script>
   </footer>
-
-  <script type="module">
-    import { attachMiniViz } from './js/app.js';
-    attachMiniViz(document.getElementById('viz2'));
-  </script>
+  <script type="module">import { attachMiniViz } from './js/app.js'; attachMiniViz(document.getElementById('viz2'));</script>
 </body>
 </html>
