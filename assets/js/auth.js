@@ -101,6 +101,7 @@
         if (workerBase !== '/api' && ABSOLUTE_RE.test(workerBase)) {
           console.warn('Falling back to local /api after network error:', err);
           updateWorkerBase('/api');
+          remoteAttempted = false;
           return null;
         }
         if (workerBase === '/api' && canUseRemoteFallback()) {
