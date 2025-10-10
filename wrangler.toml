@@ -9,15 +9,19 @@ workers_dev = true
 # IMPORTANT: add both the exact path and the wildcard,
 # because Cloudflare route '.../api/*' does NOT match '/api' without trailing slash.
 routes = [
+  # www origin (legacy)
   { pattern = "www.ergodika.it/api", zone_name = "ergodika.it" },
-  { pattern = "www.ergodika.it/api/*", zone_name = "ergodika.it" }
+  { pattern = "www.ergodika.it/api/*", zone_name = "ergodika.it" },
+  # dedicated api origin
+  { pattern = "api.ergodika.it/api", zone_name = "ergodika.it" },
+  { pattern = "api.ergodika.it/api/*", zone_name = "ergodika.it" }
 ]
 
 [vars]
 SITE_URL = "https://www.ergodika.it"
 ALLOWED_ORIGINS = "https://www.ergodika.it,https://ergodika.it"
 CONNECT_FEE_PERCENT = "20"
-GOOGLE_REDIRECT_URL = "https://www.ergodika.it/api/auth/google/callback"
+GOOGLE_REDIRECT_URL = "https://api.ergodika.it/api/auth/google/callback"
 # Public Stripe key (safe in repo)
 STRIPE_PUBLISHABLE = "pk_live_51S5p3vRrORapViIm8xZ27PHOkSYwZpPPnFgfFW8G4rIzCJblqvkz2sSJJtyoqrPEhei7Pn50TIgoV9ngRFqlZ5KI00XXUtIMks"
 COOKIE_DOMAIN = ".ergodika.it"
