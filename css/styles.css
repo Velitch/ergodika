@@ -638,3 +638,24 @@ h1 {
   background: color-mix(in srgb, #fff 80%, var(--bg) 20%);
   backdrop-filter: blur(12px) saturate(120%);
 }
+
+/* Contatti */
+.contact-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.contact-list a{text-decoration:none;border-bottom:1px dotted color-mix(in srgb, var(--fg) 24%, var(--border))}
+.contact-list a:hover{border-bottom-color: var(--accent-2)}
+
+/* Social buttons */
+.social{display:flex;gap:10px;flex-wrap:wrap}
+.social-btn{
+  width:40px;height:40px;display:inline-grid;place-items:center;border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--border) 80%, var(--fg) 10%);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, #fff) 0%, color-mix(in srgb, var(--bg) 80%, #000) 100%);
+  box-shadow:var(--elev);text-decoration:none;color:var(--fg);
+  transition:background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.social-btn svg{width:20px;height:20px;fill:currentColor;opacity:.85;transition:opacity .15s ease, filter .15s ease}
+
+/* Hover/click: puntino magenta “spirituale”, niente movimento */
+.social-btn:hover{border-color:color-mix(in srgb, var(--accent-2) 40%, var(--border))}
+.social-btn:hover svg{opacity:1;filter:drop-shadow(0 0 6px color-mix(in srgb, var(--accent-2) 50%, transparent))}
+.social-btn:active{transform:none}
