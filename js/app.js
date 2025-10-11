@@ -216,20 +216,22 @@ if ('serviceWorker' in navigator) {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
       expanded ? close() : open();
     });
+    
     closeBtn.addEventListener('click', close);
     drawer.addEventListener('click', (e) => {
-          if (e.target.closest('a')) close();
+      if (e.target.closest('a')) close();
+    });
 
-          // Copy-to-clipboard per email (opzionale)
-          function() {
-            const mail = document.querySelector('a[href^="mailto:"]');
-            if (!mail) return;
-            mail.addEventListener('click', e => {
-              if (e.metaKey || e.ctrlKey) return; // lascia passare se vogliono aprire il client
-              e.preventDefault();
-              const text = mail.textContent.trim();
-              navigator.clipboard?.writeText(text).then(() => {
-                window.toast && window.toast('Email copiata');
-              });
-            })();
-          })();
+    // Copy-to-clipboard per email (opzionale)
+    function() {
+      const mail = document.querySelector('a[href^="mailto:"]');
+      if (!mail) return;
+      mail.addEventListener('click', e => {
+        if (e.metaKey || e.ctrlKey) return; // lascia passare se vogliono aprire il client
+        e.preventDefault();
+        const text = mail.textContent.trim();
+        navigator.clipboard?.writeText(text).then(() => {
+          window.toast && window.toast('Email copiata');
+        });
+      })();
+    })();
