@@ -5,8 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Contatti - Ergodika</title>
-  <link rel="manifest" href="https://ergodika.it/manifest.webmanifest" />
-  <link rel="stylesheet" href="https://ergodika.it/css/styles.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 
 <!-- include internals -->
@@ -48,7 +48,7 @@
 
 
     <!-- Footer-->
-    <div w3-include-html="https://www.ergodika.it/assets/internals/ergodika_navbar.html"></div>
+    <div w3-include-html="../assets/internals/ergodika_navbar.html"></div>
 
 
 
@@ -95,13 +95,13 @@
   </main>
 
   <!-- Footer-->
-  <div w3-include-html="https://www.ergodika.it/assets/internals/ergodika_footer.html"></div>
+  <div w3-include-html="../assets/internals/ergodika_footer.html"></div>
 
 
   <script type="module">
     import {
       attachMiniViz
-    } from 'https://www.ergodika.it/js/app.js';
+    } from '../js/app.js';
     attachMiniViz(document.getElementById('viz2'));
   </script>
 
