@@ -221,7 +221,7 @@ if ('serviceWorker' in navigator) {
       if (e.target.closest('a')) close();
     });
   })();
-})();
+)();
 
 // Copy-to-clipboard per email (opzionale)
 (function() {
