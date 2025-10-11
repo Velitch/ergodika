@@ -145,93 +145,83 @@ if ('serviceWorker' in navigator) {
 
 /* === Mobile nav full-screen === */
 (function() {
-    const btn = document.querySelector('.hamburger');
-    if (!btn) return;
+  const btn = document.querySelector('.hamburger');
+  if (!btn) return;
 
-    // Crea drawer se non esiste
-    let drawer = document.getElementById('mobile-menu');
-    if (!drawer) {
-      drawer = document.createElement('nav');
-      drawer.id = 'mobile-menu';
-      drawer.className = 'nav-drawer';
+  // Crea drawer se non esiste
+  let drawer = document.getElementById('mobile-menu');
+  if (!drawer) {
+    drawer = document.createElement('nav');
+    drawer.id = 'mobile-menu';
+    drawer.className = 'nav-drawer';
 
-      // Header drawer: brand + close
-      const head = document.createElement('div');
-      head.className = 'nav-head';
-      head.innerHTML = `
+    // Header drawer: brand + close
+    const head = document.createElement('div');
+    head.className = 'nav-head';
+    head.innerHTML = `
       <div class="brand"><img src="./assets/favicon-96x96.png" width="24" height="24" alt=""> <strong>ERGODIKA</strong></div>
       <button class="close" type="button" aria-label="Chiudi menu"><span class="bars"></span></button>
     `;
-      drawer.appendChild(head);
+    drawer.appendChild(head);
 
-      // Link clonati dalla prima .nav-links
-      const src = document.querySelector('.nav-links');
-      const list = document.createElement('div');
-      list.className = 'nav-list';
-      if (src) {
-        Array.from(src.querySelectorAll('a')).forEach(a => {
-          const link = document.createElement('a');
-          link.href = a.getAttribute('href') || '#';
-          link.textContent = (a.textContent || '').trim();
-          list.appendChild(link);
-        });
-      } else {
-        list.innerHTML = `<a href="index.html">Home</a><a href="dark-event.html">Dark</a><a href="light-corsi.html">Light</a>`;
-      }
-      drawer.appendChild(list);
-      document.body.appendChild(drawer);
+    // Link clonati dalla prima .nav-links
+    const src = document.querySelector('.nav-links');
+    const list = document.createElement('div');
+    list.className = 'nav-list';
+    if (src) {
+      Array.from(src.querySelectorAll('a')).forEach(a => {
+        const link = document.createElement('a');
+        link.href = a.getAttribute('href') || '#';
+        link.textContent = (a.textContent || '').trim();
+        list.appendChild(link);
+      });
+    } else {
+      list.innerHTML = `<a href="index.html">Home</a><a href="dark-event.html">Dark</a><a href="light-corsi.html">Light</a>`;
     }
+    drawer.appendChild(list);
+    document.body.appendChild(drawer);
+  }
 
-    const closeBtn = drawer.querySelector('.close');
-    const firstFocusable = () => drawer.querySelector('a,button,[tabindex]:not([tabindex="-1"])');
+  const closeBtn = drawer.querySelector('.close');
+  const firstFocusable = () => drawer.querySelector('a,button,[tabindex]:not([tabindex="-1"])');
 
-    const onKey = (e) => {
-      if (e.key === 'Escape') close();
-    };
-    const trap = (e) => {
-      if (!drawer.classList.contains('open')) return;
-      if (!drawer.contains(e.target)) {
-        (firstFocusable() || closeBtn).focus();
-        e.stopPropagation();
-      }
-    };
-
-    function open() {
-      drawer.classList.add('open');
-      btn.setAttribute('aria-expanded', 'true');
+  const onKey = (e) => {
+    if (e.key === 'Escape') close();
+  };
+  const trap = (e) => {
+    if (!drawer.classList.contains('open')) return;
+    if (!drawer.contains(e.target)) {
       (firstFocusable() || closeBtn).focus();
-      document.addEventListener('keydown', onKey);
-      document.addEventListener('focus', trap, true);
+      e.stopPropagation();
     }
+  };
 
-    function close() {
-      drawer.classList.remove('open');
-      btn.setAttribute('aria-expanded', 'false');
-      btn.focus();
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('focus', trap, true);
-    }
+  function open() {
+    drawer.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    (firstFocusable() || closeBtn).focus();
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('focus', trap, true);
+  }
 
-    btn.addEventListener('click', () => {
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      expanded ? close() : open();
-    });
-    
-    closeBtn.addEventListener('click', close);
-    drawer.addEventListener('click', (e) => {
-      if (e.target.closest('a')) close();
-    });
+  function close() {
+    drawer.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+    document.removeEventListener('keydown', onKey);
+    document.removeEventListener('focus', trap, true);
+  }
 
-    // Copy-to-clipboard per email (opzionale)
-    function() {
-      const mail = document.querySelector('a[href^="mailto:"]');
-      if (!mail) return;
-      mail.addEventListener('click', e => {
-        if (e.metaKey || e.ctrlKey) return; // lascia passare se vogliono aprire il client
-        e.preventDefault();
-        const text = mail.textContent.trim();
-        navigator.clipboard?.writeText(text).then(() => {
-          window.toast && window.toast('Email copiata');
-        });
-      })();
-    })();
+  btn.addEventListener('click', () => {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    expanded ? close() : open();
+  });
+
+  closeBtn.addEventListener('click', close);
+  drawer.addEventListener('click', (e) => {
+    if (e.target.closest('a')) close();
+  });
+
+
+})();
+})();
