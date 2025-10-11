@@ -1,35 +1,43 @@
 <!doctype html>
-<html lang="it" data-theme="light">
+<html lang="it" data-theme="dark">
+
 <head>
-  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Ergodika - Contatti</title>
-  <link rel="manifest" href="https://ergodika.it/manifest.webmanifest"/><link rel="stylesheet" href="https://ergodika.it/css/styles.css"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ergodika — Evento / Dark</title>
+  <link rel="manifest" href="https://ergodika.it/manifest.webmanifest" />
+  <link rel="stylesheet" href="https://ergodika.it/css/styles.css" />
 </head>
+
 <body>
   <header class="navbar">
     <div class="container inner">
       <a class="logo" href="https://ergodika.it/index.html"><img src="https://ergodika.it/assets/images/favicon-96x96.png" alt=""><strong>ERGODIKA</strong></a>
-      <button class="hamburger" type="button" aria-label="Apri menu" aria-controls="mobile-menu" aria-expanded="false">
-        <span class="bars"><span></span></span>
-      </button>
       <nav class="nav-links" aria-label="Principale">
-        <a href="https://ergodika.it/dark-event.html">Dark</a><a href="https://ergodika.it/index.html">Home</a>
-        <a class="btn small primary" href="https://ergodika.it/#iscrizioni">Iscriviti</a>
+        <a href="https://ergodika.it/light-corsi.html">Light</a><a href="https://ergodika.it/index.html">Home</a>
+        <a class="btn small primary" href="https://ergodika.it/#tickets">Tickets</a>
       </nav>
     </div>
   </header>
 
 
   <main>
-  </main>
 
+
+  </main>
 
   <footer class="footer">
     <div class="container">© <span id="year"></span> Ergodika</div>
-    <script>document.getElementById('year').textContent=new Date().getFullYear()</script>
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear()
+    </script>
   </footer>
-  <script src="js/app.js" type="module"></script>
-
+  <script type="module">
+    import {
+      attachMiniViz
+    } from './js/app.js';
+    attachMiniViz(document.getElementById('viz2'));
+  </script>
 
 </body>
 
