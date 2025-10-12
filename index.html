@@ -182,15 +182,10 @@
   <script type="module">
     import {
       attachMiniViz,
-      initMap,
       toast
     } from './js/app.js';
     window.toast = toast;
     attachMiniViz(document.getElementById('viz1'));
-    initMap('map-host', {
-      lat: 41.9,
-      lng: 12.5,
-      zoom: 12
     });
   </script>
 
