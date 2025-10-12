@@ -23,21 +23,47 @@
   gtag('config', 'G-EJPJ39J2RJ');
 </script>
 
-<body>
-  <header class="navbar" role="banner">
-    <div class="container inner">
-      <a class="logo" href="/"><img src="assets/images/favicon-96x96.png" alt="Ergodika" width="96" height="96"><strong>ERGODIKA</strong></a>
-      <button class="hamburger" type="button" aria-label="Apri menu" aria-controls="mobile-menu" aria-expanded="false">
-        <span class="bars"><span></span></span>
-      </button>
+<!-- include internals -->
+<script>
+  function includeHTML() {
+    var z, i, elmnt, file, xhttp;
+    /* Loop through a collection of all HTML elements: */
+    z = document.getElementsByTagName("*");
+    for (i = 0; i < z.length; i++) {
+      elmnt = z[i];
+      /*search for elements with a certain atrribute:*/
+      file = elmnt.getAttribute("w3-include-html");
+      if (file) {
+        /* Make an HTTP request using the attribute value as the file name: */
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4) {
+            if (this.status == 200) {
+              elmnt.innerHTML = this.responseText;
+            }
+            if (this.status == 404) {
+              elmnt.innerHTML = "Page not found.";
+            }
+            /* Remove the attribute, and call this function once more: */
+            elmnt.removeAttribute("w3-include-html");
+            includeHTML();
+          }
+        }
+        xhttp.open("GET", file, true);
+        xhttp.send();
+        /* Exit the function: */
+        return;
+      }
+    }
+  }
+</script>
 
-      <nav class="nav-links" aria-label="Principale">
-        <a href="https://ergodika.it/pages/corsi.html">Corsi</a>
-        <a href="https://ergodika.it/pages/contatti.html">Contatti</a>
-        <button class="btn small ghost theme-toggle" type="button">Tema: Light</button>
-      </nav>
-    </div>
-  </header>
+
+<body>
+
+  <!-- Navbar-->
+  <div w3-include-html="../assets/internals/ergodika_navbar.html"></div>
+
 
   <main id="contenuto">
     <section class="hero">
