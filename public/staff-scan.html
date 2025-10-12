@@ -1,1 +1,49 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Staff — Verifica Biglietto</title><link rel="stylesheet" href="./styles/events.css"/></head><body><main><h1>Verifica Biglietto</h1><div class="notice"><p>Inserisci ticketId e token staff.</p></div><section class="card"><h3>Verifica manuale</h3><div class="buy"><input id="ticketId" placeholder="ticketId"/><input id="staffToken" placeholder="Token Staff"/><button onclick="staffScan()">Verifica</button></div><p id="scanResult" class="muted"></p></section></main><script>const API_BASE="https://<tu-worker-subdomain>.workers.dev";async function staffScan(){const t=document.getElementById("ticketId").value.trim();const tok=document.getElementById("staffToken").value.trim();const out=document.getElementById("scanResult");if(!t||!tok){out.textContent="Inserisci ticketId e token staff";return;}const r=await fetch(`${API_BASE}/api/verify`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${tok}`},body:JSON.stringify({ticketId:t})});const d=await r.json();out.textContent=d.ok?`OK: ${d.message}`:`ERRORE: ${d.error||d.message}`;}</script></body></html>
+<!doctype html>
+<html lang="it">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Staff — Verifica Biglietto</title>
+  <link rel="stylesheet" href="./styles/events.css" />
+</head>
+
+<body>
+  <main>
+    <h1>Verifica Biglietto</h1>
+    <div class="notice">
+      <p>Inserisci ticketId e token staff.</p>
+    </div>
+    <section class="card">
+      <h3>Verifica manuale</h3>
+      <div class="buy"><input id="ticketId" placeholder="ticketId" /><input id="staffToken" placeholder="Token Staff" /><button onclick="staffScan()">Verifica</button></div>
+      <p id="scanResult" class="muted"></p>
+    </section>
+  </main>
+  <script>
+    const API_BASE = "https://<tu-worker-subdomain>.workers.dev";
+    async function staffScan() {
+      const t = document.getElementById("ticketId").value.trim();
+      const tok = document.getElementById("staffToken").value.trim();
+      const out = document.getElementById("scanResult");
+      if (!t || !tok) {
+        out.textContent = "Inserisci ticketId e token staff";
+        return;
+      }
+      const r = await fetch(`${API_BASE}/api/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${tok}`
+        },
+        body: JSON.stringify({
+          ticketId: t
+        })
+      });
+      const d = await r.json();
+      out.textContent = d.ok ? `OK: ${d.message}` : `ERRORE: ${d.error||d.message}`;
+    }
+  </script>
+</body>
+
+</html>

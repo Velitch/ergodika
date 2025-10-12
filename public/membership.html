@@ -1,1 +1,48 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Ergodika — Membership</title><link rel="stylesheet" href="./styles/events.css"/></head><body><main><h1>Membership</h1><div class="grid"><article class="card"><h3>Member</h3><p class="muted">Accesso a materiali mensili, prevendite e sconti workshop.</p><p><b>€5/mese</b></p><button onclick="choose('price_member_monthly')">Attiva</button></article><article class="card"><h3>Plus</h3><p class="muted">Tutto di Member + contenuti esclusivi estesi ed early access.</p><p><b>€12/mese</b></p><button onclick="choose('price_plus_monthly')">Attiva</button></article></div><div class="notice" style="margin-top:16px"><p>Serve essere loggati. Se non lo sei, <a href="./dashboard.html">accedi qui</a>.</p></div></main><script src="./js/events.js"></script><script>async function init(){await me()}async function choose(p){const s=await me();if(!s.user){alert("Accedi dalla Dashboard.");location.href="./dashboard.html";return;}await startMembership(p)}init()</script></body></html>
+<!doctype html>
+<html lang="it">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ergodika — Membership</title>
+  <link rel="stylesheet" href="./styles/events.css" />
+</head>
+
+<body>
+  <main>
+    <h1>Membership</h1>
+    <div class="grid">
+      <article class="card">
+        <h3>Member</h3>
+        <p class="muted">Accesso a materiali mensili, prevendite e sconti workshop.</p>
+        <p><b>€5/mese</b></p><button onclick="choose('price_member_monthly')">Attiva</button>
+      </article>
+      <article class="card">
+        <h3>Plus</h3>
+        <p class="muted">Tutto di Member + contenuti esclusivi estesi ed early access.</p>
+        <p><b>€12/mese</b></p><button onclick="choose('price_plus_monthly')">Attiva</button>
+      </article>
+    </div>
+    <div class="notice" style="margin-top:16px">
+      <p>Serve essere loggati. Se non lo sei, <a href="./dashboard.html">accedi qui</a>.</p>
+    </div>
+  </main>
+  <script src="./js/events.js"></script>
+  <script>
+    async function init() {
+      await me()
+    }
+    async function choose(p) {
+      const s = await me();
+      if (!s.user) {
+        alert("Accedi dalla Dashboard.");
+        location.href = "./dashboard.html";
+        return;
+      }
+      await startMembership(p)
+    }
+    init()
+  </script>
+</body>
+
+</html>
