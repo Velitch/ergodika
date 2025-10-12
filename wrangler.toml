@@ -1,0 +1,49 @@
+name = "ergodika-events"
+main = "worker/index.js"
+compatibility_date = "2025-01-15"
+
+[vars]
+SITE_BASE_URL = "https://ergodika.it"
+ADMIN_VERIFY_SECRET = "cambia-questo-subito"
+JWT_SECRET = "chiave-lunga-in-hex-o-base64"
+RESEND_API_KEY = "re_xxx"
+EMAIL_FROM = "Ergodika <noreply@ergodika.it>"
+STRIPE_SECRET_KEY = "sk_test_xxx"
+STRIPE_WEBHOOK_SECRET = "whsec_xxx"
+
+MEMBER_COUPON_ID = "coupon_member_5_off"
+PLUS_COUPON_ID   = "coupon_plus_10_off"
+
+REMINDER_H24 = "true"
+REMINDER_H2  = "true"
+
+[[kv_namespaces]]
+binding = "ERG_EVENTS"
+id = "kv_events_id"
+
+[[kv_namespaces]]
+binding = "ERG_TICKETS"
+id = "kv_tickets_id"
+
+[[kv_namespaces]]
+binding = "ERG_SESSIONS"
+id = "kv_sessions_id"
+
+[[kv_namespaces]]
+binding = "ERG_MATERIALS"
+id = "kv_materials_id"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ergodika"
+database_id = "d1_db_id"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "ergodika-materials"
+
+[site]
+bucket = "public"
+
+[triggers]
+crons = ["5 * * * *", "35 * * * *"]
